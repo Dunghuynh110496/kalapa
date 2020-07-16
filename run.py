@@ -28,7 +28,7 @@ def main(args):
     X_dev = df_dev.iloc[:,1:]
     y_dev = df_dev["label"]
 
-    model = RandomForestClassifier()
+    model = GradientBoostingClassifier()
     model.fit(X_train, y_train)
     predictions = model.predict_proba(X_dev)
     predictions = predictions[:,1]
