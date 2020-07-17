@@ -20,7 +20,7 @@ def main(args):
 
     df_train = pd.read_csv(f"../../data/kalapa/{config['data_version']}/train.csv")
     df_dev = pd.read_csv(f"../../data/kalapa/{config['data_version']}/dev.csv")
-    df_test = pd.read_csv(f"../../data/kalapa/{config['data_version']}/test.csv")
+    #df_test = pd.read_csv(f"../../data/kalapa/{config['data_version']}/test.csv")
 
     X_train = df_train.iloc[:,1:]
     y_train = df_train["label"]
