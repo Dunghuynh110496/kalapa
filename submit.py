@@ -1,6 +1,6 @@
 import os
 
-data_version = "16-07-2020"
+data_version = "17-07-2020"
 code_version = os.popen('git rev-parse HEAD').read().strip()
 weight_version = "abcasdasdasd"
 
