@@ -46,17 +46,16 @@ def main(args):
     params['seed'] = seed
 
     def evaluate(x):
-        print(x)
+        predictions = x.model.predict(X_dev)
+        predictions = clf.predict(X_dev)
+        fpr, tpr, thresholds = metrics.roc_curve(y_dev, predictions, pos_label=1)
+        auc = metrics.auc(fpr, tpr)
+        ginicof = 2 * auc - 1
+        wandb.log({"gini_dev": ginicof})
     clf = lgb.train(params,
               d_train,
               10,
             callbacks=[evaluate])
-
-    predictions = clf.predict(X_dev)
-    fpr, tpr, thresholds = metrics.roc_curve(y_dev, predictions, pos_label=1)
-    auc = metrics.auc(fpr, tpr)
-    ginicof = 2 * auc - 1
-    wandb.log({"gini": ginicof})
     """dev["pred"] = best_dev_pred
     test["label"] = best_test_pred
     dev[["id", "label", "pred"]].to_csv("dev_preds.csv", index=False)
