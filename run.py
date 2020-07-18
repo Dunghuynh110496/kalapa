@@ -48,6 +48,7 @@ def main(args):
         ginicof = 2 * auc - 1
         return ginicof
     def evaluate(x):
+        nonlocal best_gini, best_dev_pred, best_test_pred
         predictions_dev = x.model.predict(dev.iloc[:,1:])
         predictions_train = x.model.predict(train.iloc[:,1:])
         predictions_test = x.model.predict(test.iloc[:, 1:])
