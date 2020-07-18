@@ -43,10 +43,10 @@ def main(args):
     params['min_data'] = 50
     params['max_depth'] = 10
     params['seed'] = seed
-    lgb.train(params,
+    clf = lgb.train(params,
               d_train,
               10)
-    predictions = lgb.predict(X_dev)
+    predictions = clf.predict(X_dev)
     fpr, tpr, thresholds = metrics.roc_curve(y_dev, predictions, pos_label=1)
     auc = metrics.auc(fpr, tpr)
     ginicof = 2 * auc - 1
