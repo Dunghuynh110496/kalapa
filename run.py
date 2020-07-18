@@ -32,8 +32,8 @@ def main(args):
     best_test_pred = None
     wandb.log({"gini": best_gini})
     d_train = lgb.Dataset(train.iloc[:, 2:], label=train.label)
-    X_dev = dev[:,1:]
-    y_dev = dev[:,0]
+    X_dev = dev.iloc[:,1:]
+    y_dev = dev.iloc[:,0]
     params = {}
     params['learning_rate'] = 0.01
     params['boosting_type'] = 'gbdt'
