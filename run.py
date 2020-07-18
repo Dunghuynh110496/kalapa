@@ -31,7 +31,7 @@ def main(args):
     best_dev_pred = None
     best_test_pred = None
     wandb.log({"gini": best_gini})
-    d_train = lgb.Dataset(train.iloc[:, 2:], label=train.label)
+    d_train = lgb.Dataset(train.iloc[:, 1:], label=train.label)
     X_dev = dev.iloc[:,1:]
     y_dev = dev.iloc[:,0]
     params = {}
