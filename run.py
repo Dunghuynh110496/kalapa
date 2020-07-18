@@ -58,9 +58,11 @@ def main(args):
             best_dev_pred = predictions_dev
             best_test_pred = predictions_test
         gini_train = ginicof(train.iloc[:,1], predictions_train)
-        wandb.log({"gini_dev": gini_dev,
-                   "gini_train": gini_train}
-                  )
+        log = {"gini_dev": gini_dev,
+               "gini_train": gini_train,
+               "epoch": x.interation}
+        print(log)
+        wandb.log(log)
     clf = lgb.train(params,
               d_train,
               10,
