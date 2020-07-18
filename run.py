@@ -51,7 +51,7 @@ def main(args):
     fpr, tpr, thresholds = metrics.roc_curve(y_dev, predictions, pos_label=1)
     auc = metrics.auc(fpr, tpr)
     ginicof = 2 * auc - 1
-    wandn.log({"gini": ginicof})
+    wandb.log({"gini": ginicof})
     """dev["pred"] = best_dev_pred
     test["label"] = best_test_pred
     dev[["id", "label", "pred"]].to_csv("dev_preds.csv", index=False)
