@@ -48,24 +48,25 @@ def main(args):
         ginicof = 2 * auc - 1
         return ginicof
     def evaluate(x):
-        nonlocal best_gini, best_dev_pred, best_test_pred
-        predictions_dev = x.model.predict(dev.iloc[:,2:])
-        predictions_train = x.model.predict(train.iloc[:,2:])
-        predictions_test = x.model.predict(test.iloc[:, 1:])
-        gini_dev = ginicof(dev.iloc[:,1], predictions_dev)
-        if gini_dev > best_gini:
-            best_gini = gini_dev
-            best_dev_pred = predictions_dev
-            best_test_pred = predictions_test
-        gini_train = ginicof(train.iloc[:,1], predictions_train)
-        log = {"gini_dev": gini_dev,
-               "gini_train": gini_train,
-               "epoch": x.iteration}
-        print(log)
-        wandb.log(log)
+        if x.iteration % 100 == 0:
+            nonlocal best_gini, best_dev_pred, best_test_pred
+            predictions_dev = x.model.predict(dev.iloc[:,2:])
+            predictions_train = x.model.predict(train.iloc[:,2:])
+            predictions_test = x.model.predict(test.iloc[:, 1:])
+            gini_dev = ginicof(dev.iloc[:,1], predictions_dev)
+            if gini_dev > best_gini:
+                best_gini = gini_dev
+                best_dev_pred = predictions_dev
+                best_test_pred = predictions_test
+            gini_train = ginicof(train.iloc[:,1], predictions_train)
+            log = {"gini_dev": gini_dev,
+                   "gini_train": gini_train,
+                   "epoch": x.iteration}
+            print(log)
+            wandb.log(log)
     clf = lgb.train(params,
               d_train,
-              10,
+              2500,
             callbacks=[evaluate])
     dev["pred"] = best_dev_pred
     test["label"] = best_test_pred
