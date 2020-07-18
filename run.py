@@ -46,13 +46,12 @@ def main(args):
     params['seed'] = seed
     clf = lgb.train(params,
               d_train,
-              2500)
+              10)
     predictions = clf.predict(X_dev)
     fpr, tpr, thresholds = metrics.roc_curve(y_dev, predictions, pos_label=1)
     auc = metrics.auc(fpr, tpr)
     ginicof = 2 * auc - 1
-    print("gini xgb" + str(ginicof))
-
+    wandn.log({"gini": ginicof})
     """dev["pred"] = best_dev_pred
     test["label"] = best_test_pred
     dev[["id", "label", "pred"]].to_csv("dev_preds.csv", index=False)
