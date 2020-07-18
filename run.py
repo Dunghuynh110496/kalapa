@@ -31,13 +31,22 @@ def main(args):
     best_dev_pred = None
     best_test_pred = None
     wandb.log({"gini": best_gini})
-    X_train = train.iloc[:,1:]
-    y_train = train.iloc[:,0]
-    X_dev = dev.iloc[:,1:]
-    y_dev = dev.iloc[:,0]
+    d_train = lgb.Dataset(train.iloc[:, 2:], label=train.label)
 
-    clf = lgb.train(X_train,y_train)
-    predictions = clf.predict_proba(X_dev)
+    params = {}
+    params['learning_rate'] = 0.01
+    params['boosting_type'] = 'gbdt'
+    params['objective'] = 'binary'
+    params['metric'] = 'binary_logloss'
+    params['sub_feature'] = 0.1
+    params['num_leaves'] = 10
+    params['min_data'] = 50
+    params['max_depth'] = 10
+    params['seed'] = seed
+    lgb.train(params,
+              d_train,
+              2500)
+    predictions = lgb.predict_proba(X_dev)
     predictions = predictions[:,1]
     fpr, tpr, thresholds = metrics.roc_curve(y_dev, predictions, pos_label=1)
     auc = metrics.auc(fpr, tpr)
