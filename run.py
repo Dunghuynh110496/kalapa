@@ -1,68 +1,60 @@
 import pandas as pd
-import wandb
 from sklearn import metrics
-from sklearn.ensemble import GradientBoostingClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-import argparse
+import wandb
 import os
+import argparse
+import lightgbm as lgb
+from sklearn.model_selection import train_test_split
+
+def compute_gini(labels, preds):
+    fpr, tpr, thresholds = metrics.roc_curve(labels, preds, pos_label=1)
+    auc = metrics.auc(fpr, tpr)
+    gini = 2 * auc - 1
+    return gini
 
 def main(args):
+    wandb.init(project="kalapa")
+    seed = args.seed
+    os.system(f"git commit -am \"{args.message}\"")
+    code_version = os.popen('git rev-parse HEAD').read().strip()
+    wandb.log({"user": "cho",
+               "seed": seed,
+               "code_version": code_version,
+               "data_version": args.data_version,
+               "weight_version": args.weight_version})
 
-    branch = os.popen('git rev-parse --abbrev-ref HEAD').read().strip()
-    os.system("git commit -am \"{0}\"".format(args.message))
-    wandb.init( project = "kalapa")
-    config = {
-        "data_version" : args.data_version,
-        "code_version" : args.code_version,
-        "weight_version" : args.weight_version
-    }
+    train_dev = pd.read_csv(f"/home/andy/data/kalapa/{args.data_version}/train.csv")
+    test = pd.read_csv(f"/home/andy/data/kalapa/{args.data_version}/test.csv")
+    train, dev = train_test_split(train_dev, test_size=0.08, stratify=train_dev.label, random_state=10)
 
-    df_train = pd.read_csv(f"../../data/kalapa/{config['data_version']}/train.csv")
-    df_dev = pd.read_csv(f"../../data/kalapa/{config['data_version']}/dev.csv")
-    #df_test = pd.read_csv(f"../../data/kalapa/{config['data_version']}/test.csv")
+    best_gini = -1.0
+    best_dev_pred = None
+    best_test_pred = None
+    wandb.log({"gini": best_gini})
+    X_train = train[:,1:]
+    y_train = train[:,0]
+    X_dev = dev[:,1:]
+    y_dev = dev[:,0]
 
-    X_train = df_train.iloc[:,1:]
-    y_train = df_train["label"]
-
-    X_dev = df_dev.iloc[:,1:]
-    y_dev = df_dev["label"]
-
-    model = GradientBoostingClassifier()
-    model.fit(X_train, y_train)
-    predictions = model.predict_proba(X_dev)
+    clf = lgb.train(X_train,y_train)
+    predictions = clf.predict_proba(X_dev)
     predictions = predictions[:,1]
-
     fpr, tpr, thresholds = metrics.roc_curve(y_dev, predictions, pos_label=1)
     auc = metrics.auc(fpr, tpr)
-    ginicof = 2*auc - 1
+    ginicof = 2 * auc - 1
+    print("gini xgb" + str(ginicof))
 
-    config['gini'] = ginicof
-    wandb.log(config)
-
-    """X_transform = [df_train, df_dev]
-    X_transform = pd.concat(X_transform)
-
-    X = X_transform.iloc[:,1:]
-    y = X_transform.iloc[:,0]
-    model = GradientBoostingClassifier()
-    model.fit(X,y)
-
-    test = df_test.iloc[:,1:]
-    test_id = df_test["label"]
-    predictions = model.predict_proba(test)
-    predictions = predictions[:,1]
-    f = open(f"../../data/kalapa/{config['data_version']}/submission.csv", "w")
-    f.write("id,label\n")
-    for i in range(len(predictions)):
-        f.write(str(test_id.iloc[i]) + "," + str(predictions[i]) + "\n")
-    f.close()"""
-
+    """dev["pred"] = best_dev_pred
+    test["label"] = best_test_pred
+    dev[["id", "label", "pred"]].to_csv("dev_preds.csv", index=False)
+    test[["id", "label"]].to_csv("test_preds.csv", index=False)
+    wandb.save("dev_preds.csv")
+    wandb.save("test_preds.csv")"""
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--code-version", type=str)
     parser.add_argument("-m", "--message", type=str)
     parser.add_argument("-w", "--weight-version", type=str, default="")
     parser.add_argument("-d", "--data-version", type=str)
+    parser.add_argument("-s", "--seed", type=int, default=10)
     args = parser.parse_args()
     main(args)
