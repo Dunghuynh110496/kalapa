@@ -31,7 +31,7 @@ def main(args):
     best_dev_pred = None
     best_test_pred = None
     wandb.log({"gini": best_gini})
-    d_train = lgb.Dataset(train.iloc[:, 1:], label=train.label)
+    d_train = lgb.Dataset(train.iloc[:, 2:], label=train.label)
     params = {}
     params['learning_rate'] = 0.01
     params['boosting_type'] = 'gbdt'
@@ -49,15 +49,15 @@ def main(args):
         return ginicof
     def evaluate(x):
         nonlocal best_gini, best_dev_pred, best_test_pred
-        predictions_dev = x.model.predict(dev.iloc[:,1:])
-        predictions_train = x.model.predict(train.iloc[:,1:])
+        predictions_dev = x.model.predict(dev.iloc[:,2:])
+        predictions_train = x.model.predict(train.iloc[:,2:])
         predictions_test = x.model.predict(test.iloc[:, 1:])
-        gini_dev = ginicof(dev.iloc[:,0], predictions_dev)
+        gini_dev = ginicof(dev.iloc[:,1], predictions_dev)
         if gini_dev > best_gini:
             best_gini = gini_dev
             best_dev_pred = predictions_dev
             best_test_pred = predictions_test
-        gini_train = ginicof(train.iloc[:,0], predictions_train)
+        gini_train = ginicof(train.iloc[:,1], predictions_train)
         wandb.log({"gini_dev": gini_dev,
                    "gini_train": gini_train}
                   )
