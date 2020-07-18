@@ -47,7 +47,6 @@ def main(args):
 
     def evaluate(x):
         predictions = x.model.predict(X_dev)
-        predictions = clf.predict(X_dev)
         fpr, tpr, thresholds = metrics.roc_curve(y_dev, predictions, pos_label=1)
         auc = metrics.auc(fpr, tpr)
         ginicof = 2 * auc - 1
