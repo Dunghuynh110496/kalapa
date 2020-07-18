@@ -60,7 +60,7 @@ def main(args):
         gini_train = ginicof(train.iloc[:,1], predictions_train)
         log = {"gini_dev": gini_dev,
                "gini_train": gini_train,
-               "epoch": x.interation}
+               "epoch": x.iteration}
         print(log)
         wandb.log(log)
     clf = lgb.train(params,
