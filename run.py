@@ -46,7 +46,7 @@ def main(args):
     params['seed'] = seed
     clf = lgb.train(params,
               d_train,
-              10)
+              2500)
     predictions = clf.predict(X_dev)
     fpr, tpr, thresholds = metrics.roc_curve(y_dev, predictions, pos_label=1)
     auc = metrics.auc(fpr, tpr)
