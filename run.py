@@ -23,8 +23,8 @@ def main(args):
                "data_version": args.data_version,
                "weight_version": args.weight_version})
 
-    train_dev = pd.read_csv(f"/home/andy/data/kalapa/{args.data_version}/train.csv")
-    test = pd.read_csv(f"/home/andy/data/kalapa/{args.data_version}/test.csv")
+    train_dev = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
+    test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
     train, dev = train_test_split(train_dev, test_size=0.08, stratify=train_dev.label, random_state=10)
 
     best_gini = -1.0
