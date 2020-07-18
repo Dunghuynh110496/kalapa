@@ -44,13 +44,18 @@ def main(args):
     params['min_data'] = 50
     params['max_depth'] = 10
     params['seed'] = seed
-
-    def evaluate(x):
-        predictions = x.model.predict(X_dev)
-        fpr, tpr, thresholds = metrics.roc_curve(y_dev, predictions, pos_label=1)
+    def ginicof(y, preds):
+        fpr, tpr, thresholds = metrics.roc_curve(y, preds, pos_label=1)
         auc = metrics.auc(fpr, tpr)
         ginicof = 2 * auc - 1
-        wandb.log({"gini_dev": ginicof})
+        return ginicof
+    def evaluate(x):
+        predictions_dev = x.model.predict(X_dev)
+        predictions_train = x.model.predict(train.iloc[:,1:])
+        gini_dev = ginicof(y_dev, predictions_dev)
+        gini_train = ginicof(train.iloc[:,0], predictions_train)
+        wandb.log({"gini_dev": gini_dev,
+                   "gini_train": gini_train})
     clf = lgb.train(params,
               d_train,
               10,
