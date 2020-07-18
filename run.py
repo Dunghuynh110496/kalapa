@@ -31,10 +31,10 @@ def main(args):
     best_dev_pred = None
     best_test_pred = None
     wandb.log({"gini": best_gini})
-    X_train = train[:,1:]
-    y_train = train[:,0]
-    X_dev = dev[:,1:]
-    y_dev = dev[:,0]
+    X_train = train.iloc[:,1:]
+    y_train = train.iloc[:,0]
+    X_dev = dev.iloc[:,1:]
+    y_dev = dev.iloc[:,0]
 
     clf = lgb.train(X_train,y_train)
     predictions = clf.predict_proba(X_dev)
