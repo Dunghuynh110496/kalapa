@@ -17,7 +17,7 @@ def main(args):
     seed = args.seed
     os.system(f"git commit -am \"{args.message}\"")
     code_version = os.popen('git rev-parse HEAD').read().strip()
-    wandb.log({"user": "cho",
+    wandb.log({"user": "parker",
                "seed": seed,
                "code_version": code_version,
                "data_version": args.data_version,
