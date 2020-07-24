@@ -25,7 +25,10 @@ def main(args):
 
     train_dev = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
+    new_data = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
     train, dev = train_test_split(train_dev, test_size=0.08, stratify=train_dev.label, random_state=10)
+    train = pd.concat([train,new_data ], axis = 1)
+
 
     best_gini = -1.0
     best_dev_pred = None
