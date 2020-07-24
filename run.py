@@ -70,7 +70,7 @@ def main(args):
             wandb.log(log)
     clf = lgb.train(params,
               d_train,
-              2500,
+              3000,
             callbacks=[evaluate])
     dev["pred"] = best_dev_pred
     test["label"] = best_test_pred
