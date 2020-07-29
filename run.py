@@ -6,12 +6,6 @@ import argparse
 import lightgbm as lgb
 from sklearn.model_selection import train_test_split
 
-def compute_gini(labels, preds):
-    fpr, tpr, thresholds = metrics.roc_curve(labels, preds, pos_label=1)
-    auc = metrics.auc(fpr, tpr)
-    gini = 2 * auc - 1
-    return gini
-
 def main(args):
     wandb.init(project="kalapa")
     seed = args.seed
@@ -25,9 +19,9 @@ def main(args):
 
     train_dev = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
-    #new_data = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
+    new_data = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
     train, dev = train_test_split(train_dev, test_size=0.08, stratify=train_dev.label, random_state=10)
-    #train = pd.concat([train,new_data ], axis = 0)
+    train = pd.concat([train,new_data ], axis = 0)
 
 
     best_gini = -1.0
