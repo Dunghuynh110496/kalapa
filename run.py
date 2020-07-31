@@ -80,7 +80,7 @@ def main(args):
             train = train_dev.iloc[train_index, 2:]
             dev = train_dev.iloc[dev_index, 2:]
 
-            d_train = lgb.Dataset(train, label=train_dev.loc[train_index]["label"])
+            d_train = lgb.Dataset(train, label=train_dev.iloc[train_index]["label"])
             clf = lgb.train(params,
                       d_train,
                       2500,
