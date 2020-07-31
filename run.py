@@ -43,8 +43,8 @@ def main(args):
     def evaluate(x):
         if x.iteration % 100 == 0:
             nonlocal best_gini, best_dev_pred, best_test_pred, i
-            predictions_dev = x.model.predict(dev.iloc[:,2:])
-            predictions_train = x.model.predict(train.iloc[:,2:])
+            predictions_dev = x.model.predict(dev)
+            predictions_train = x.model.predict(train)
             predictions_test = x.model.predict(test.iloc[:, 1:])
             gini_dev = ginicof(dev.iloc[:,1], predictions_dev)
             if gini_dev > best_gini:
