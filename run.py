@@ -64,7 +64,7 @@ def main(args):
     pred_test = []
     ginis = []
 
-    for i in range(4):
+    for i in range(2):
         fold_th = 1
         kf = KFold(n_splits = 8, shuffle=True)
         fold = kf.split(train_dev)
@@ -79,7 +79,7 @@ def main(args):
             d_train = lgb.Dataset(train, label=train_dev.iloc[train_index]["label"])
             clf = lgb.train(params,
                       d_train,
-                      2500,
+                      1000,
                     callbacks=[evaluate])
             ginis.append(best_gini)
             pred_test.append(best_test_pred)
