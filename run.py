@@ -45,13 +45,13 @@ def main(args):
             predictions_dev = x.model.predict(dev)
             predictions_train = x.model.predict(train)
             predictions_test = x.model.predict(test.iloc[:, 1:])
-            print(predictions_test)
             gini_dev = ginicof(train_dev.iloc[dev_index]["label"], predictions_dev)
             if gini_dev > best_gini:
                 wandb.log({"gini": best_gini})
                 best_gini = gini_dev
                 best_dev_pred = predictions_dev
                 best_test_pred = predictions_test
+                print(best_test_pred)
             gini_train = ginicof(train_dev.iloc[train_index]["label"], predictions_train)
             log_iter = {"gini_dev": gini_dev,
                    "gini_train": gini_train,
