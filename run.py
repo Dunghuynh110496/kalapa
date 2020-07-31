@@ -24,8 +24,7 @@ def main(args):
 
 
 
-    wandb.log({"gini": best_gini})
-    d_train = lgb.Dataset(train.iloc[:, 2:], label=train.label)
+
     params = {}
     params['learning_rate'] = 0.01
     params['boosting_type'] = 'gbdt'
@@ -49,6 +48,7 @@ def main(args):
             predictions_test = x.model.predict(test.iloc[:, 1:])
             gini_dev = ginicof(dev.iloc[:,1], predictions_dev)
             if gini_dev > best_gini:
+                wandb.log({"gini": best_gini})
                 best_gini = gini_dev
                 best_dev_pred = predictions_dev
                 best_test_pred = predictions_test
