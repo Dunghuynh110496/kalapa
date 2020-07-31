@@ -51,7 +51,6 @@ def main(args):
                 best_gini = gini_dev
                 best_dev_pred = predictions_dev
                 best_test_pred = predictions_test
-                print(best_test_pred)
             gini_train = ginicof(train_dev.iloc[train_index]["label"], predictions_train)
             log_iter = {"gini_dev": gini_dev,
                    "gini_train": gini_train,
@@ -65,9 +64,9 @@ def main(args):
     pred_test = []
     ginis = []
 
-    for i in range(1):
+    for i in range(4):
         fold_th = 1
-        kf = KFold(n_splits = 2, shuffle=True)
+        kf = KFold(n_splits = 8, shuffle=True)
         fold = kf.split(train_dev)
         for train_index, dev_index in fold:
             best_gini = -1.0
@@ -84,15 +83,12 @@ def main(args):
                     callbacks=[evaluate])
             ginis.append(best_gini)
             pred_test.append(best_test_pred)
-            print(pred_test)
             fold_th += 1
     gini = np.mean(np.array(ginis))
-    print(ginis)
-
 
     predictions_test = np.asarray(pred_test)
     predictions_test = np.mean(predictions_test, axis=0)
-    print(predictions_test)
+
     log = {
        "gini" : gini
     }
