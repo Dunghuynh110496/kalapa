@@ -79,7 +79,7 @@ def main(args):
             d_train = lgb.Dataset(train, label=train_dev.iloc[train_index]["label"])
             clf = lgb.train(params,
                       d_train,
-                      7500,
+                      3500,
                     callbacks=[evaluate])
             ginis.append(best_gini)
             pred_test.append(best_test_pred)
