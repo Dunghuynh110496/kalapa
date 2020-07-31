@@ -41,7 +41,7 @@ def main(args):
         return ginicof
     def evaluate(x):
         if x.iteration % 100 == 0:
-            nonlocal best_gini, best_dev_pred, best_test_pred, i
+            nonlocal best_gini, best_dev_pred, best_test_pred, i, fold_th
             predictions_dev = x.model.predict(dev)
             predictions_train = x.model.predict(train)
             predictions_test = x.model.predict(test.iloc[:, 1:])
@@ -56,7 +56,8 @@ def main(args):
                    "gini_train": gini_train,
                    "gini" : best_gini,
                    "epoch": x.iteration,
-                    "iter": i}
+                    "iter": i+1,
+                    "fold": fold_th}
             print(log_iter)
 
 
@@ -64,10 +65,11 @@ def main(args):
     iter_pred_test = []
     ginis = []
 
-    for i in range(1):
+    for i in range(4):
+        fold_th = 1
         pred_dev_stack = []
         pred_test_stack = []
-        kf = KFold(n_splits = 4, shuffle=True)
+        kf = KFold(n_splits = 8, shuffle=True)
         fold = kf.split(train_dev)
         for train_index, dev_index in fold:
             best_gini = -1.0
@@ -85,11 +87,10 @@ def main(args):
             ginis.append(best_gini)
             pred_dev_stack.append(best_dev_pred)
             pred_test_stack.append(best_test_pred)
-        iter_pred_dev.append(pred_dev_stack)
-        iter_pred_test.append(pred_test_stack)
+            fold_th += 1
     gini = np.mean(np.array(ginis))
-    predictions_dev = np.asarray(iter_pred_dev)
-    predictions_dev = np.mean(predictions_dev, axis=0)
+    print(ginis)
+
 
     predictions_test = np.asarray(iter_pred_test)
     predictions_test = np.mean(predictions_test, axis=0)
@@ -99,11 +100,8 @@ def main(args):
     }
 
     wandb.log(log)
-    dev["pred"] = predictions_dev
     test["label"] = predictions_test
-    dev[["id", "label", "pred"]].to_csv("dev_preds.csv", index=False)
     test[["id", "label"]].to_csv("test_preds.csv", index=False)
-    wandb.save("dev_preds.csv")
     wandb.save("test_preds.csv")
 
 if __name__ == "__main__":
