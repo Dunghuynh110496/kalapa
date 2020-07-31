@@ -23,7 +23,7 @@ def main(args):
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
     new_data = pd.read_csv(f"../../data/kalapa/{args.data_version}/new_data.csv")
     train_dev = pd.concat([train_dev,new_data ], axis = 0)
-    train_dev.head()
+    print(len(train_dev))
     params = {}
     params['learning_rate'] = 0.01
     params['boosting_type'] = 'gbdt'
@@ -67,7 +67,7 @@ def main(args):
     for i in range(1):
         pred_dev_stack = []
         pred_test_stack = []
-        kf = KFold(n_splits = 8, shuffle=True)
+        kf = KFold(n_splits = 4, shuffle=True)
         fold = kf.split(train_dev)
         for train_index, dev_index in fold:
             best_gini = -1.0
@@ -90,8 +90,10 @@ def main(args):
     gini = np.mean(np.array(ginis))
     predictions_dev = np.asarray(iter_pred_dev)
     predictions_dev = np.mean(predictions_dev, axis=0)
+
     predictions_test = np.asarray(iter_pred_test)
     predictions_test = np.mean(predictions_test, axis=0)
+    print(predictions_test)
     log = {
        "gini" : gini
     }
@@ -103,6 +105,7 @@ def main(args):
     test[["id", "label"]].to_csv("test_preds.csv", index=False)
     wandb.save("dev_preds.csv")
     wandb.save("test_preds.csv")
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--message", type=str)
