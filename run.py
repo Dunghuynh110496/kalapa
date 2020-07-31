@@ -4,13 +4,7 @@ import wandb
 import os
 import argparse
 import lightgbm as lgb
-from sklearn.model_selection import train_test_split
 
-def compute_gini(labels, preds):
-    fpr, tpr, thresholds = metrics.roc_curve(labels, preds, pos_label=1)
-    auc = metrics.auc(fpr, tpr)
-    gini = 2 * auc - 1
-    return gini
 
 def main(args):
     wandb.init(project="kalapa")
@@ -26,13 +20,10 @@ def main(args):
     train_dev = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
     new_data = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
-    train, dev = train_test_split(train_dev, test_size=0.08, stratify=train_dev.label, random_state=10)
-    train = pd.concat([train,new_data ], axis = 0)
+    train_dev = pd.concat([train_dev,new_data ], axis = 0).iloc[:5,:]
 
 
-    best_gini = -1.0
-    best_dev_pred = None
-    best_test_pred = None
+
     wandb.log({"gini": best_gini})
     d_train = lgb.Dataset(train.iloc[:, 2:], label=train.label)
     params = {}
@@ -52,7 +43,7 @@ def main(args):
         return ginicof
     def evaluate(x):
         if x.iteration % 100 == 0:
-            nonlocal best_gini, best_dev_pred, best_test_pred
+            nonlocal best_gini, best_dev_pred, best_test_pred, i
             predictions_dev = x.model.predict(dev.iloc[:,2:])
             predictions_train = x.model.predict(train.iloc[:,2:])
             predictions_test = x.model.predict(test.iloc[:, 1:])
@@ -62,18 +53,53 @@ def main(args):
                 best_dev_pred = predictions_dev
                 best_test_pred = predictions_test
             gini_train = ginicof(train.iloc[:,1], predictions_train)
-            log = {"gini_dev": gini_dev,
+            log_iter = {"gini_dev": gini_dev,
                    "gini_train": gini_train,
                    "gini" : best_gini,
-                   "epoch": x.iteration}
-            print(log)
-            wandb.log(log)
-    clf = lgb.train(params,
-              d_train,
-              2500,
-            callbacks=[evaluate])
-    dev["pred"] = best_dev_pred
-    test["label"] = best_test_pred
+                   "epoch": x.iteration,
+                    "iter": i}
+            print(log_iter)
+
+
+    iter_pred_dev = []
+    iter_pred_test = []
+    ginis = []
+
+    for i in range(1):
+        pred_dev_stack = []
+        pred_test_stack = []
+        kf = KFold(n_splits = 2, shuffle=True)
+        fold = kf.split(train_dev)
+        for train_index, dev_index in fold:
+            best_gini = -1.0
+            best_dev_pred = None
+            best_test_pred = None
+
+            train = train_dev.iloc[train_index, 2:]
+            dev = train_dev.iloc[dev_index, 2:]
+
+            d_train = lgb.Dataset(train, label=train_dev.loc[train_index]["label"])
+            clf = lgb.train(params,
+                      d_train,
+                      2500,
+                    callbacks=[evaluate])
+            ginis.append(best_gini)
+            pred_dev_stack.append(best_dev_pred)
+            pred_test_stack.append(best_test_pred)
+        iter_pred_dev.append(pred_dev_stack)
+        iter_pred_test.append(pred_test_stack)
+    gini = np.mean(np.array(ginis))
+    predictions_dev = np.asarray(iter_pred_dev)
+    predictions_dev = np.mean(predictions_dev, axis=0)
+    predictions_test = np.asarray(iter_pred_test)
+    predictions_test = np.mean(predictions_test, axis=0)
+    log = {
+       "gini" : gini
+    }
+
+    wandb.log(log)
+    dev["pred"] = predictions_dev
+    test["label"] = predictions_test
     dev[["id", "label", "pred"]].to_csv("dev_preds.csv", index=False)
     test[["id", "label"]].to_csv("test_preds.csv", index=False)
     wandb.save("dev_preds.csv")
