@@ -23,7 +23,7 @@ def main(args):
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
     new_data = pd.read_csv(f"../../data/kalapa/{args.data_version}/new_data.csv")
     train_dev = pd.concat([train_dev,new_data ], axis = 0)
-    train_dev.info()
+    train_dev.head()
     params = {}
     params['learning_rate'] = 0.01
     params['boosting_type'] = 'gbdt'
