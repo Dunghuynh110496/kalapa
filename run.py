@@ -4,7 +4,7 @@ import wandb
 import os
 import argparse
 import lightgbm as lgb
-
+from sklearn.model_selection import KFold
 
 def main(args):
     wandb.init(project="kalapa")
