@@ -62,13 +62,11 @@ def main(args):
             print(log_iter)
 
 
-    iter_pred_test = []
+    pred_test = []
     ginis = []
 
     for i in range(1):
         fold_th = 1
-        pred_dev_stack = []
-        pred_test_stack = []
         kf = KFold(n_splits = 2, shuffle=True)
         fold = kf.split(train_dev)
         for train_index, dev_index in fold:
@@ -85,14 +83,14 @@ def main(args):
                       2500,
                     callbacks=[evaluate])
             ginis.append(best_gini)
-            pred_dev_stack.append(best_dev_pred)
-            pred_test_stack.append(best_test_pred)
+            pred_test.append(best_test_pred)
+            print(pred_test)
             fold_th += 1
     gini = np.mean(np.array(ginis))
     print(ginis)
 
 
-    predictions_test = np.asarray(iter_pred_test)
+    predictions_test = np.asarray(pred_test)
     predictions_test = np.mean(predictions_test, axis=0)
     print(predictions_test)
     log = {
