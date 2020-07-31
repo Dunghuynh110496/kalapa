@@ -4,6 +4,8 @@ import wandb
 import os
 import argparse
 import lightgbm as lgb
+import numpy as np
+
 from sklearn.model_selection import KFold
 
 def main(args):
