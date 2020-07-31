@@ -22,7 +22,7 @@ def main(args):
     train_dev = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
     new_data = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
-    train_dev = pd.concat([train_dev,new_data ], axis = 0).iloc[:1000,:]
+    train_dev = pd.concat([train_dev,new_data ], axis = 0)
 
 
 
