@@ -45,6 +45,7 @@ def main(args):
             predictions_dev = x.model.predict(dev)
             predictions_train = x.model.predict(train)
             predictions_test = x.model.predict(test.iloc[:, 1:])
+            print(predictions_test)
             gini_dev = ginicof(train_dev.iloc[dev_index]["label"], predictions_dev)
             if gini_dev > best_gini:
                 wandb.log({"gini": best_gini})
@@ -61,15 +62,14 @@ def main(args):
             print(log_iter)
 
 
-    iter_pred_dev = []
     iter_pred_test = []
     ginis = []
 
-    for i in range(4):
+    for i in range(1):
         fold_th = 1
         pred_dev_stack = []
         pred_test_stack = []
-        kf = KFold(n_splits = 8, shuffle=True)
+        kf = KFold(n_splits = 2, shuffle=True)
         fold = kf.split(train_dev)
         for train_index, dev_index in fold:
             best_gini = -1.0
