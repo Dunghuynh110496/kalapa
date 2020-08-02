@@ -36,6 +36,7 @@ def main(args):
                 if df_fe[col].isnull().sum() > 0:
                     df_fe[col] = df_fe[col].cat.add_categories(f'missing_{col}')
                     df_fe[col].fillna(f'missing_{col}', inplace=True)
+        return df_fe
     train = cate(train)
     test = cate(test)
     print(train.columns)
