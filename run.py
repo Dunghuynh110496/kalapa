@@ -36,6 +36,7 @@ def main(args):
             if df_fe[col].dtype.name == "object":
                 df_fe[col] = df_fe[col].astype('category')
             vc = df_fe[col].value_counts()
+        return df_fe
     train = cate(train)
     test = cate(test)
     col2 = []
