@@ -32,7 +32,7 @@ def main(args):
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
     cols = train.drop(["id", "label"], axis = 1).columns
     def cate(df_fe):
-        for col in df_fe.drop().cols:
+        for col in cols:
             if df_fe[col].dtype.name == "object":
                 df_fe[col] = df_fe[col].astype('category')
             vc = df_fe[col].value_counts()
