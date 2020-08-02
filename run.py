@@ -31,7 +31,7 @@ def main(args):
     train = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
     def cate(df_fe):
-        for col in train.columns:
+        for col in df_fe.columns:
             if df_fe[col].dtype.name == "category":
                 if df_fe[col].isnull().sum() > 0:
                     df_fe[col] = df_fe[col].cat.add_categories(f'missing_{col}')
