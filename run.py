@@ -92,8 +92,8 @@ def main(args):
                 avg_val_gini += model.best_score["valid_1"]["gini"] / (len(seeds) * skf.n_splits)
 
                 log = {
-                    "train_gini": avg_train_gini,
-                    "dev_gini": avg_val_gini
+                    "gini_train": avg_train_gini,
+                    "gini": avg_val_gini
                 }
                 wandb.log(log)
                 if feature_important is None:
