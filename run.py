@@ -34,10 +34,13 @@ def main(args):
         for col in df_fe.columns:
             if df_fe[col].dtype.name == "object":
                 df_fe[col] = df_fe[col].astype('category')
+            vc = df_fe[col].value_counts()
+            if len(vc) <= 2:
+                df_fe[col] = df_fe[col].astype('category')
         return df_fe
     train = cate(train)
     test = cate(test)
-    print(train.columns)
+
 
     lgbm_param = {'boosting_type': 'gbdt', \
                   'colsample_bytree': 0.6602479798930369, \
