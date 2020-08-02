@@ -5,12 +5,71 @@ import os
 import argparse
 import lightgbm as lgb
 from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import StratifiedKFold
 
-def compute_gini(labels, preds):
-    fpr, tpr, thresholds = metrics.roc_curve(labels, preds, pos_label=1)
-    auc = metrics.auc(fpr, tpr)
-    gini = 2 * auc - 1
-    return gini
+def gini(y_true, y_score):
+    return roc_auc_score(y_true, y_score)*2 - 1
+def lgb_gini(y_pred, dataset_true):
+    y_true = dataset_true.get_label()
+    return 'gini', gini(y_true, y_pred), True
+def kfold(train_fe,test_fe):
+    y_label = train_fe.label
+    seeds = np.random.randint(0, 10000, 1)
+    preds = 0
+    feature_important = None
+    avg_train_gini = 0
+    avg_val_gini = 0
+
+    for s in seeds:
+        skf = StratifiedKFold(n_splits= 5, random_state = 6484, shuffle=True)
+        lgbm_param['random_state'] = 6484
+        seed_train_gini = 0
+        seed_val_gini = 0
+        for i, (train_idx, val_idx) in enumerate(skf.split(np.zeros(len(y_label)), y_label)):
+            X_train, X_val = train_fe.iloc[train_idx].drop(["id", "label"], 1), train_fe.iloc[val_idx].drop(["id", "label"], 1)
+            y_train, y_val = y_label.iloc[train_idx], y_label.iloc[val_idx]
+
+            lgb_train = lgb.Dataset(X_train, y_train)
+            lgb_eval  = lgb.Dataset(X_val, y_val)
+
+            evals_result = {}
+            model = lgb.train(lgbm_param,
+                        lgb_train,
+                        num_boost_round=NUM_BOOST_ROUND,
+                        early_stopping_rounds=400,
+                        feval=lgb_gini,
+                        verbose_eval= 200,
+                        evals_result=evals_result,
+                        valid_sets=[lgb_train, lgb_eval])
+
+            seed_train_gini += model.best_score["training"]["gini"] / skf.n_splits
+            seed_val_gini += model.best_score["valid_1"]["gini"] / skf.n_splits
+
+            avg_train_gini += model.best_score["training"]["gini"] / (len(seeds) * skf.n_splits)
+            avg_val_gini += model.best_score["valid_1"]["gini"] / (len(seeds) * skf.n_splits)
+
+            log = {
+                "train_gini" : avg_train_gini,
+                "dev_gini" : avg_val_gini
+            }
+            wandb.log(log)
+            if feature_important is None:
+                feature_important = model.feature_importance() / (len(seeds) * skf.n_splits)
+            else:
+                feature_important += model.feature_importance() / (len(seeds) * skf.n_splits)
+
+            pred = model.predict(test_fe.drop(["id"], 1))
+            preds += pred / (skf.n_splits * len(seeds))
+
+            print("Fold {}: {}/{}".format(i, model.best_score["training"]["gini"], model.best_score["valid_1"]["gini"]))
+        print("Seed {}: {}/{}".format(s, seed_train_gini, seed_val_gini))
+
+    print("-" * 30)
+    print("Avg train gini: {}".format(avg_train_gini))
+    print("Avg valid gini: {}".format(avg_val_gini))
+    print("=" * 30)
+    return preds
 
 def main(args):
     wandb.init(project="kalapa")
@@ -23,60 +82,25 @@ def main(args):
                "data_version": args.data_version,
                "weight_version": args.weight_version})
 
-    train_dev = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
+    train = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
-    new_data = pd.read_csv(f"../../data/kalapa/{args.data_version}/new_data.csv")
-    train, dev = train_test_split(train_dev, test_size=0.08, stratify=train_dev.label, random_state=10)
-    train = pd.concat([train,new_data ], axis = 0)
 
-
-    best_gini = -1.0
-    best_dev_pred = None
-    best_test_pred = None
-    wandb.log({"gini": best_gini})
-    d_train = lgb.Dataset(train.iloc[:, 2:], label=train.label)
-    params = {}
-    params['learning_rate'] = 0.01
-    params['boosting_type'] = 'gbdt'
-    params['objective'] = 'binary'
-    params['metric'] = 'binary_logloss'
-    params['sub_feature'] = 0.1
-    params['num_leaves'] = 10
-    params['min_data'] = 50
-    params['max_depth'] = 10
-    params['seed'] = seed
-    def ginicof(y, preds):
-        fpr, tpr, thresholds = metrics.roc_curve(y, preds, pos_label=1)
-        auc = metrics.auc(fpr, tpr)
-        ginicof = 2 * auc - 1
-        return ginicof
-    def evaluate(x):
-        if x.iteration % 100 == 0:
-            nonlocal best_gini, best_dev_pred, best_test_pred
-            predictions_dev = x.model.predict(dev.iloc[:,2:])
-            predictions_train = x.model.predict(train.iloc[:,2:])
-            predictions_test = x.model.predict(test.iloc[:, 1:])
-            gini_dev = ginicof(dev.iloc[:,1], predictions_dev)
-            if gini_dev > best_gini:
-                best_gini = gini_dev
-                best_dev_pred = predictions_dev
-                best_test_pred = predictions_test
-            gini_train = ginicof(train.iloc[:,1], predictions_train)
-            log = {"gini_dev": gini_dev,
-                   "gini_train": gini_train,
-                   "gini" : best_gini,
-                   "epoch": x.iteration}
-            print(log)
-            wandb.log(log)
-    clf = lgb.train(params,
-              d_train,
-              2500,
-            callbacks=[evaluate])
-    dev["pred"] = best_dev_pred
-    test["label"] = best_test_pred
-    dev[["id", "label", "pred"]].to_csv("dev_preds.csv", index=False)
+    lgbm_param = {'boosting_type': 'gbdt', \
+                  'colsample_bytree': 0.6602479798930369, \
+                  'is_unbalance': False, \
+                  'learning_rate': 0.00746275526696824, \
+                  'max_depth': 15, \
+                  'metric': 'auc', \
+                  'min_child_samples': 25, \
+                  'num_leaves': 60, \
+                  'objective': 'binary', \
+                  'reg_alpha': 0.4693391197064131, \
+                  'reg_lambda': 0.16175478669541327, \
+                  'subsample_for_bin': 60000}
+    NUM_BOOST_ROUND = 10000
+    preds  = kfold(train, test)
+    test["label"] = preds
     test[["id", "label"]].to_csv("test_preds.csv", index=False)
-    wandb.save("dev_preds.csv")
     wandb.save("test_preds.csv")
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
