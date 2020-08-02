@@ -36,11 +36,17 @@ def main(args):
             if df_fe[col].dtype.name == "object":
                 df_fe[col] = df_fe[col].astype('category')
             vc = df_fe[col].value_counts()
-            if len(vc) <= 2:
-                df_fe[col] = df_fe[col].astype('category')
-        return df_fe
     train = cate(train)
     test = cate(test)
+    col2 = []
+    for col in cols:
+        vc = train.value_counts()
+        if len(vc) <= 2:
+            col2.append(col)
+            train[col] = train[col].astype('category')
+    for col in col2:
+        test[col] = test[col].astype('category')
+
 
 
     lgbm_param = {'boosting_type': 'gbdt', \
