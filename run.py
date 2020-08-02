@@ -4,6 +4,8 @@ import wandb
 import os
 import argparse
 import lightgbm as lgb
+import numpy as np
+
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedKFold
