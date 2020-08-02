@@ -30,6 +30,14 @@ def main(args):
 
     train = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
+    def cate(df_fe):
+        for col in train.columns:
+            if train[col].dtype.name == "category":
+                if df_fe[col].isnull().sum() > 0:
+                    df_fe[col] = df_fe[col].cat.add_categories(f'missing_{col}')
+                    df_fe[col].fillna(f'missing_{col}', inplace=True)
+    train = cate(train)
+    test = cate(test)
 
     lgbm_param = {'boosting_type': 'gbdt', \
                   'colsample_bytree': 0.6602479798930369, \
