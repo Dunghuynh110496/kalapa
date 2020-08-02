@@ -90,11 +90,7 @@ def main(args):
                 avg_train_gini += model.best_score["training"]["gini"] / (len(seeds) * skf.n_splits)
                 avg_val_gini += model.best_score["valid_1"]["gini"] / (len(seeds) * skf.n_splits)
 
-                log = {
-                    "gini_train": model.best_score["training"]["gini"],
-                    "gini": model.best_score["valid_1"]["gini"]
-                }
-                wandb.log(log)
+
                 if feature_important is None:
                     feature_important = model.feature_importance() / (len(seeds) * skf.n_splits)
                 else:
@@ -105,6 +101,12 @@ def main(args):
 
                 print("Fold {}: {}/{}".format(i, model.best_score["training"]["gini"],
                                               model.best_score["valid_1"]["gini"]))
+                log = {
+                    "gini_train": model.best_score["training"]["gini"],
+                    "gini": model.best_score["valid_1"]["gini"],
+                    "epoch" : i
+                }
+                wandb.log(log)
             print("Seed {}: {}/{}".format(s, seed_train_gini, seed_val_gini))
 
         print("-" * 30)
