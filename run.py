@@ -38,6 +38,7 @@ def main(args):
                     df_fe[col].fillna(f'missing_{col}', inplace=True)
     train = cate(train)
     test = cate(test)
+    print(train.columns)
 
     lgbm_param = {'boosting_type': 'gbdt', \
                   'colsample_bytree': 0.6602479798930369, \
