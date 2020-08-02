@@ -35,13 +35,12 @@ def main(args):
         for col in cols:
             if df_fe[col].dtype.name == "object":
                 df_fe[col] = df_fe[col].astype('category')
-            vc = df_fe[col].value_counts()
         return df_fe
     train = cate(train)
     test = cate(test)
     col2 = []
     for col in cols:
-        vc = train.value_counts()
+        vc = train[col].value_counts()
         if len(vc) <= 2:
             col2.append(col)
             train[col] = train[col].astype('category')
