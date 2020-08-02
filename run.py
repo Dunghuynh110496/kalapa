@@ -30,7 +30,7 @@ def main(args):
 
     train = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
-    cols = train.drop(["id", "label"], axis = 1).columns
+    cols = train.iloc[:,2:].columns
     def cate(df_fe):
         for col in cols:
             if df_fe[col].dtype.name == "object":
