@@ -59,7 +59,7 @@ def main(args):
                   'subsample_for_bin': 60000}
     NUM_BOOST_ROUND = 10000
 
-    def kfold(train_fe, test_fe):
+    def kfold(train_fe, test_fe, new_train_fe):
         y_label = train_fe.label
         seeds = np.random.randint(0, 10000, 1)
         preds = 0
