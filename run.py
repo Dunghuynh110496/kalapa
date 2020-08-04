@@ -75,6 +75,8 @@ def main(args):
             for i, (train_idx, val_idx) in enumerate(skf.split(np.zeros(len(y_label)), y_label)):
                 X_train, X_val = train_fe.iloc[train_idx].drop(["id", "label"], 1), train_fe.iloc[val_idx].drop(
                     ["id", "label"], 1)
+                print(X_train.info())
+                print(test_fe.info())
                 X_train = pd.concat([X_train,test_fe.drop(["id"], axis = 1)], axis = 0)
                 print(X_train.dtypes)
                 y_train, y_val = y_label.iloc[train_idx], y_label.iloc[val_idx]
