@@ -60,7 +60,7 @@ def main(args):
     NUM_BOOST_ROUND = 10000
 
     def kfold(train_fe, test_fe, new_train_fe):
-        new_y = train_fe.label
+        y_label = train_fe.label
         seeds = np.random.randint(0, 10000, 1)
         preds = 0
         feature_important =True
@@ -82,7 +82,7 @@ def main(args):
                     X_train[col] = X_train[col].astype('category')
 
                 y_train, y_val = y_label.iloc[train_idx], y_label.iloc[val_idx]
-                y_train = y_train.append(new_y)
+                y_train = y_train.append(new_train_fe.label)
 
                 lgb_train = lgb.Dataset(X_train, y_train)
                 lgb_eval = lgb.Dataset(X_val, y_val)
