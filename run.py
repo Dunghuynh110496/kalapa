@@ -87,7 +87,7 @@ def main(args):
                 model = lgb.train(lgbm_param,
                                   lgb_train,
                                   num_boost_round=NUM_BOOST_ROUND,
-                                  early_stopping_rounds=400,
+                                  early_stopping_rounds=800,
                                   feval=lgb_gini,
                                   verbose_eval=200,
                                   evals_result=evals_result,
