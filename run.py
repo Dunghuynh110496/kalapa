@@ -66,7 +66,7 @@ def main(args):
         y_label = train_fe.label
         seeds = np.random.randint(0, 10000, 1)
         preds = 0
-        feature_important = None
+        feature_important =True
         avg_train_gini = 0
         avg_val_gini = 0
 
