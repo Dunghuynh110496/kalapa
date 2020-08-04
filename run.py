@@ -36,7 +36,6 @@ def main(args):
         return df_fe
     train = to_category(train)
     test = to_category(test)
-    #new_train = to_category(new_train)
     col2 = []
     for col in cols:
         vc = train[col].value_counts()
@@ -45,7 +44,6 @@ def main(args):
             train[col] = train[col].astype('category')
     for col in col2:
         test[col] = test[col].astype('category')
-        #new_train[col] = new_train[col].astype('category')
 
     lgbm_param = {'boosting_type': 'gbdt', \
                   'colsample_bytree': 0.6602479798930369, \
@@ -61,9 +59,8 @@ def main(args):
                   'subsample_for_bin': 60000}
     NUM_BOOST_ROUND = 10000
 
-    def kfold(train_fe, test_fe, new_train_fe):
+    def kfold(train_fe, test_fe):
         y_label = train_fe.label
-        new_y_label = new_train_fe.label
         seeds = np.random.randint(0, 10000, 1)
         preds = 0
         feature_important =True
@@ -78,11 +75,7 @@ def main(args):
             for i, (train_idx, val_idx) in enumerate(skf.split(np.zeros(len(y_label)), y_label)):
                 X_train, X_val = train_fe.iloc[train_idx].drop(["id", "label"], 1), train_fe.iloc[val_idx].drop(
                     ["id", "label"], 1)
-                new_X_train = new_train_fe.drop(["id", "label"], 1)
-                X_train = pd.concat([X_train,test_fe.drop(["id"], axis = 1)], axis = 0)
-
                 y_train, y_val = y_label.iloc[train_idx], y_label.iloc[val_idx]
-                y_train = y_train.append(new_y_label)
 
                 lgb_train = lgb.Dataset(X_train, y_train)
                 lgb_eval = lgb.Dataset(X_val, y_val)
