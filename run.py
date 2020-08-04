@@ -51,7 +51,7 @@ def main(args):
     lgbm_param = {'boosting_type': 'gbdt', \
                   'colsample_bytree': 0.6602479798930369, \
                   'is_unbalance': False, \
-                  'learning_rate': 0.001, \
+                  'learning_rate': 0.00746275526696824, \
                   'max_depth': 15, \
                   'metric': 'auc', \
                   'min_child_samples': 25, \
@@ -60,7 +60,7 @@ def main(args):
                   'reg_alpha': 0.4693391197064131, \
                   'reg_lambda': 0.16175478669541327, \
                   'subsample_for_bin': 60000}
-    NUM_BOOST_ROUND = 30000
+    NUM_BOOST_ROUND = 10000
 
     def kfold(train_fe, test_fe):
         y_label = train_fe.label
