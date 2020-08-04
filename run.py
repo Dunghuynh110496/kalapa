@@ -27,7 +27,6 @@ def main(args):
                "code_version": code_version,
                "data_version": args.data_version,
                "weight_version": args.weight_version})
-
     train = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
     cols = train.iloc[:,2:].columns
@@ -41,7 +40,7 @@ def main(args):
     col2 = []
     for col in cols:
         vc = train[col].value_counts()
-        if len(vc) <= 2:
+        if len(vc) <= 3:
             col2.append(col)
             train[col] = train[col].astype('category')
     for col in col2:
@@ -114,7 +113,7 @@ def main(args):
                 log = {
                     "gini_train": model.best_score["training"]["gini"],
                     "gini": model.best_score["valid_1"]["gini"],
-                    "epoch" : i
+                    "epoch" : NUM_BOOST_ROUND
                 }
                 wandb.log(log)
             print("Seed {}: {}/{}".format(s, seed_train_gini, seed_val_gini))
@@ -122,6 +121,7 @@ def main(args):
         print("-" * 30)
         print("Avg train gini: {}".format(avg_train_gini))
         print("Avg valid gini: {}".format(avg_val_gini))
+        wandb.log({"gini":avg_val_gini})
         print("=" * 30)
         return preds
     preds  = kfold(train, test)
