@@ -51,7 +51,7 @@ def main(args):
     lgbm_param = {'boosting_type': 'gbdt', \
                   'colsample_bytree': 0.6602479798930369, \
                   'is_unbalance': False, \
-                  'learning_rate': 0.00746275526696824, \
+                  'learning_rate': 0.001, \
                   'max_depth': 15, \
                   'metric': 'auc', \
                   'min_child_samples': 25, \
@@ -87,7 +87,7 @@ def main(args):
                 model = lgb.train(lgbm_param,
                                   lgb_train,
                                   num_boost_round=NUM_BOOST_ROUND,
-                                  early_stopping_rounds=800,
+                                  early_stopping_rounds=400,
                                   feval=lgb_gini,
                                   verbose_eval=200,
                                   evals_result=evals_result,
