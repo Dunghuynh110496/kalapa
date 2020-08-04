@@ -114,7 +114,7 @@ def main(args):
                 log = {
                     "gini_train": model.best_score["training"]["gini"],
                     "gini": model.best_score["valid_1"]["gini"],
-                    "epoch" : i
+                    "epoch" : NUM_BOOST_ROUND
                 }
                 wandb.log(log)
             print("Seed {}: {}/{}".format(s, seed_train_gini, seed_val_gini))
