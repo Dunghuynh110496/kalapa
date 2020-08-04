@@ -78,7 +78,7 @@ def main(args):
                 X_train = pd.concat([X_train,test_fe.drop(["id"], axis = 1)], axis = 0)
                 y_train, y_val = y_label.iloc[train_idx], y_label.iloc[val_idx]
                 y_train = pd.concat([y_train, new_train_fe.label], axis = 0)
-                print(y_train.info())
+                print(y_train.head())
                 lgb_train = lgb.Dataset(X_train, y_train)
                 lgb_eval = lgb.Dataset(X_val, y_val)
 
