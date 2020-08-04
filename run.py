@@ -12,6 +12,7 @@ from sklearn.model_selection import StratifiedKFold
 
 def gini(y_true, y_score):
     return roc_auc_score(y_true, y_score)*2 - 1
+
 def lgb_gini(y_pred, dataset_true):
     y_true = dataset_true.get_label()
     return 'gini', gini(y_true, y_pred), True
@@ -30,13 +31,13 @@ def main(args):
     train = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
     cols = train.iloc[:,2:].columns
-    def cate(df_fe):
+    def to_category(df_fe):
         for col in cols:
             if df_fe[col].dtype.name == "object":
                 df_fe[col] = df_fe[col].astype('category')
         return df_fe
-    train = cate(train)
-    test = cate(test)
+    train = to_category(train)
+    test = to_category(test)
     col2 = []
     for col in cols:
         vc = train[col].value_counts()
@@ -45,8 +46,6 @@ def main(args):
             train[col] = train[col].astype('category')
     for col in col2:
         test[col] = test[col].astype('category')
-
-
 
     lgbm_param = {'boosting_type': 'gbdt', \
                   'colsample_bytree': 0.6602479798930369, \
@@ -98,8 +97,6 @@ def main(args):
 
                 avg_train_gini += model.best_score["training"]["gini"] / (len(seeds) * skf.n_splits)
                 avg_val_gini += model.best_score["valid_1"]["gini"] / (len(seeds) * skf.n_splits)
-
-
                 if feature_important is None:
                     feature_important = model.feature_importance() / (len(seeds) * skf.n_splits)
                 else:
@@ -128,6 +125,8 @@ def main(args):
     test["label"] = preds
     test[["id", "label"]].to_csv("test_preds.csv", index=False)
     wandb.save("test_preds.csv")
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--message", type=str)
