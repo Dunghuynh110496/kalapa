@@ -75,9 +75,7 @@ def main(args):
             for i, (train_idx, val_idx) in enumerate(skf.split(np.zeros(len(y_label)), y_label)):
                 X_train, X_val = train_fe.iloc[train_idx].drop(["id", "label"], 1), train_fe.iloc[val_idx].drop(
                     ["id", "label"], 1)
-                X_train = X_train.append(test_fe.drop(["id"], axis = 1))
                 y_train, y_val = y_label.iloc[train_idx], y_label.iloc[val_idx]
-                y_train = pd.concat([y_train, new_train_fe.label], axis = 0)
                 lgb_train = lgb.Dataset(X_train, y_train)
                 lgb_eval = lgb.Dataset(X_val, y_val)
 
