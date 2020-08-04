@@ -40,7 +40,7 @@ def main(args):
     col2 = []
     for col in cols:
         vc = train[col].value_counts()
-        if len(vc) <= 4:
+        if len(vc) <= 3:
             col2.append(col)
             train[col] = train[col].astype('category')
     for col in col2:
