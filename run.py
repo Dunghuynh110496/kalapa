@@ -27,7 +27,6 @@ def main(args):
                "code_version": code_version,
                "data_version": args.data_version,
                "weight_version": args.weight_version})
-
     train = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
     cols = train.iloc[:,2:].columns
