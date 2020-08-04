@@ -121,6 +121,7 @@ def main(args):
         print("-" * 30)
         print("Avg train gini: {}".format(avg_train_gini))
         print("Avg valid gini: {}".format(avg_val_gini))
+        wandb.log({"gini":avg_val_gini})
         print("=" * 30)
         return preds
     preds  = kfold(train, test)
