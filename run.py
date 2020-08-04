@@ -76,6 +76,7 @@ def main(args):
                 X_train, X_val = train_fe.iloc[train_idx].drop(["id", "label"], 1), train_fe.iloc[val_idx].drop(
                     ["id", "label"], 1)
                 X_train = pd.concat([X_train,test_fe.drop(["id"], axis = 1)], axis = 0)
+                print(X_train.dtypes)
                 y_train, y_val = y_label.iloc[train_idx], y_label.iloc[val_idx]
                 y_train = pd.concat([y_train, new_train_fe.label], axis = 0)
                 print(y_train.head())
