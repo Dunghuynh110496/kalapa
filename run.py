@@ -36,7 +36,7 @@ def main(args):
         return df_fe
     train = to_category(train)
     test = to_category(test)
-    new_train = to_category(new_train)
+    #new_train = to_category(new_train)
     col2 = []
     for col in cols:
         vc = train[col].value_counts()
@@ -45,7 +45,7 @@ def main(args):
             train[col] = train[col].astype('category')
     for col in col2:
         test[col] = test[col].astype('category')
-        new_train[col] = new_train[col].astype('category')
+        #new_train[col] = new_train[col].astype('category')
 
     lgbm_param = {'boosting_type': 'gbdt', \
                   'colsample_bytree': 0.6602479798930369, \
@@ -79,7 +79,7 @@ def main(args):
                 X_train, X_val = train_fe.iloc[train_idx].drop(["id", "label"], 1), train_fe.iloc[val_idx].drop(
                     ["id", "label"], 1)
                 new_X_train = new_train_fe.drop(["id", "label"], 1)
-                X_train = X_train.append(new_X_train)
+                X_train = pd.concat([X_train,test_fe.drop(["id"])], axis = 0)
 
                 y_train, y_val = y_label.iloc[train_idx], y_label.iloc[val_idx]
                 y_train = y_train.append(new_y_label)
