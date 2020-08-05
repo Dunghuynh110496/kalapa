@@ -4,7 +4,7 @@ import os
 import argparse
 import lightgbm as lgb
 import numpy as np
-from sklearn.metrics import roc_auc_score
+#from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedKFold
 
 def gini(y_true, y_score):
@@ -109,7 +109,7 @@ def main(args):
 
                 pred = model.predict(test_fe.drop(["id"], 1))
                 preds += pred / (skf.n_splits * len(seeds))
-
+                """
                 print("Fold {}: {}/{}".format(i, model.best_score["training"]["gini"],
                                               model.best_score["valid_1"]["gini"]))
                 log = {
@@ -124,7 +124,7 @@ def main(args):
         print("Avg train gini: {}".format(avg_train_gini))
         print("Avg valid gini: {}".format(avg_val_gini))
         wandb.log({"gini":avg_val_gini})
-        print("=" * 30)
+        print("=" * 30)"""
         return preds
     preds  = kfold(train, test, new_train)
     test["label"] = preds
