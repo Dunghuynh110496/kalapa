@@ -92,7 +92,7 @@ def main(args):
                                   lgb_train,
                                   num_boost_round=NUM_BOOST_ROUND,
                                   early_stopping_rounds=400,
-                                  feval=lgb_gini,
+                                  #feval=lgb_gini,
                                   verbose_eval=200,
                                   evals_result=evals_result,
                                   valid_sets=[lgb_train, lgb_eval])
