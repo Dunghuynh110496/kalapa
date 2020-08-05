@@ -6,14 +6,19 @@ import lightgbm as lgb
 import numpy as np
 #from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedKFold
-"""
+
 def gini(y_true, y_score):
+    for i in range(len(y_score)):
+        if y_score[i]>= 0.5:
+            y_score[i] = 1
+        else:
+            y_score[i] = 0
     return roc_auc_score(y_true, y_score)*2 - 1
 
 def lgb_gini(y_pred, dataset_true):
     y_true = dataset_true.get_label()
     return 'gini', gini(y_true, y_pred), True
-"""
+
 def main(args):
     wandb.init(project="kalapa")
     seed = args.seed
@@ -96,7 +101,7 @@ def main(args):
                                   verbose_eval=200,
                                   evals_result=evals_result,
                                   valid_sets=[lgb_train, lgb_eval])
-                """
+
                 seed_train_gini += model.best_score["training"]["gini"] / skf.n_splits
                 seed_val_gini += model.best_score["valid_1"]["gini"] / skf.n_splits
 
@@ -106,10 +111,10 @@ def main(args):
                     feature_important = model.feature_importance() / (len(seeds) * skf.n_splits)
                 else:
                     feature_important += model.feature_importance() / (len(seeds) * skf.n_splits)
-                """
+
                 pred = model.predict(test_fe.drop(["id"], 1))
                 preds += pred / (skf.n_splits * len(seeds))
-                """
+
                 print("Fold {}: {}/{}".format(i, model.best_score["training"]["gini"],
                                               model.best_score["valid_1"]["gini"]))
                 log = {
@@ -124,7 +129,7 @@ def main(args):
         print("Avg train gini: {}".format(avg_train_gini))
         print("Avg valid gini: {}".format(avg_val_gini))
         wandb.log({"gini":avg_val_gini})
-        print("=" * 30)"""
+        print("=" * 30)
         return preds
     preds  = kfold(train, test, new_train)
     test["label"] = preds
