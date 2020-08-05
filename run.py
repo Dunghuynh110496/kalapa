@@ -6,14 +6,14 @@ import lightgbm as lgb
 import numpy as np
 #from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedKFold
-
+"""
 def gini(y_true, y_score):
     return roc_auc_score(y_true, y_score)*2 - 1
 
 def lgb_gini(y_pred, dataset_true):
     y_true = dataset_true.get_label()
     return 'gini', gini(y_true, y_pred), True
-
+"""
 def main(args):
     wandb.init(project="kalapa")
     seed = args.seed
