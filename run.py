@@ -96,7 +96,7 @@ def main(args):
                                   verbose_eval=200,
                                   evals_result=evals_result,
                                   valid_sets=[lgb_train, lgb_eval])
-
+                """
                 seed_train_gini += model.best_score["training"]["gini"] / skf.n_splits
                 seed_val_gini += model.best_score["valid_1"]["gini"] / skf.n_splits
 
@@ -106,7 +106,7 @@ def main(args):
                     feature_important = model.feature_importance() / (len(seeds) * skf.n_splits)
                 else:
                     feature_important += model.feature_importance() / (len(seeds) * skf.n_splits)
-
+                """
                 pred = model.predict(test_fe.drop(["id"], 1))
                 preds += pred / (skf.n_splits * len(seeds))
                 """
