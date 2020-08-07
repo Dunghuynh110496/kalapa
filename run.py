@@ -18,7 +18,7 @@ def gini(y_true, y_score):
 def lgb_gini(y_pred, dataset_true):
     y_true = dataset_true.get_label()
     for i in range(len(y_true)):
-        if y_true[i]>= 0.5:
+        if y_true[i] >= 0.5:
             y_true[i] = 1
         else:
             y_true[i] = 0
@@ -70,6 +70,7 @@ def main(args):
     NUM_BOOST_ROUND = 10000
 
     def kfold(train_fe, test_fe, new_train_fe):
+        global col2
         y_label = train_fe.label
         seeds = np.random.randint(0, 10000, 1)
         preds = 0
