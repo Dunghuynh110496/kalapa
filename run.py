@@ -113,8 +113,8 @@ def main(args):
     print(preds)
     test["label"] = preds
     print("a")
-    test[["id", "label"]].to_csv("test_preds.csv", index=False)
-    wandb.save("test_preds.csv")
+    test[["id", "label"]].to_csv("test_preds_rf.csv", index=False)
+    wandb.save("test_preds_rf.csv")
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--message", type=str)
