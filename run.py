@@ -110,6 +110,7 @@ def main(args):
         wandb.log(log2)
         return test_preds
     preds = kfold(train, test)
+    print(preds)
     test["label"] = preds
     print("a")
     test[["id", "label"]].to_csv("test_preds.csv", index=False)
