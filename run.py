@@ -62,7 +62,7 @@ def main(args):
         random_state=0,
         verbose=0,
         warm_start=False,
-        class_weight='balanced'
+        class_weight='unbalanced'
     )
     def kfold(train_fe, test_fe):
         y_label = train_fe.label
