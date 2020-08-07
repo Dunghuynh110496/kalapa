@@ -12,9 +12,9 @@ from sklearn.ensemble import RandomForestClassifier
 def gini(y_true, y_score):
     return roc_auc_score(y_true, y_score)*2 - 1
 
-def evaluate(i,model, X_train, y_train, X_dev, y_dev, test):
+def evaluate(i,model, X_train, y_train, X_dev, y_dev, X_test):
 
-    test_preds = model.predict_proba(test)[:,1]
+    test_preds = model.predict_proba(X_test)[:,1]
     train_proba = model.predict_proba(X_train)[:,1]
     dev_proba = model.predict_proba(X_dev)[:,1]
 
@@ -45,25 +45,6 @@ def main(args):
     train = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
 
-    clf = RandomForestClassifier(
-        n_estimators=10000,
-        criterion='gini',
-        max_depth=5,
-        min_samples_split=2,
-        min_samples_leaf=1,
-        min_weight_fraction_leaf=0.0,
-        max_features='auto',
-        max_leaf_nodes=None,
-        min_impurity_decrease=0.0,
-        min_impurity_split=None,
-        bootstrap=True,
-        oob_score=False,
-        n_jobs=-1,
-        random_state=0,
-        verbose=0,
-        warm_start=False,
-        class_weight='balanced_subsample'
-    )
     def kfold(train_fe, test_fe):
         y_label = train_fe.label
         test_preds = 0
@@ -77,6 +58,7 @@ def main(args):
             y_train = y_label.iloc[train_idx]
             y_dev = y_label.iloc[dev_idx]
             X_test = test_fe.iloc[:,1:]
+            clf = RandomForestClassifier(n_estimators=2500)
             clf.fit(X_train, y_train)
             #output =  [test_preds, train_gini, dev_gini]
             output = evaluate(i,clf, X_train, y_train, X_dev, y_dev, X_test)
@@ -85,9 +67,9 @@ def main(args):
             train_gini = output[1]
             dev_gini = output[2]
 
-            test_preds += test_pred / (skf.n_splits)
-            avg_train_gini += train_gini/ (skf.n_splits)
-            avg_dev_gini += dev_gini/ (skf.n_splits)
+            test_preds += test_pred/(skf.n_splits)
+            avg_train_gini += train_gini/(skf.n_splits)
+            avg_dev_gini += dev_gini/(skf.n_splits)
 
 
         print("-" * 30)
@@ -103,7 +85,6 @@ def main(args):
     preds = kfold(train, test)
     print(preds)
     test["label"] = preds
-    print("a")
     test[["id", "label"]].to_csv("test_preds_rf.csv", index=False)
     wandb.save("test_preds_rf.csv")
 if __name__ == "__main__":
