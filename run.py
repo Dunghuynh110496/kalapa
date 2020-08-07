@@ -46,7 +46,7 @@ def main(args):
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
 
     clf = RandomForestClassifier(
-        n_estimators=5000,
+        n_estimators=10000,
         criterion='gini',
         max_depth=5,
         min_samples_split=2,
@@ -95,7 +95,8 @@ def main(args):
         print("Avg valid gini: {}".format(avg_dev_gini))
         print("=" * 30)
         log2 = {
-            "gini": avg_dev_gini
+            "gini": avg_dev_gini,
+            "epoch": clf.n_estimators
         }
         wandb.log(log2)
         return test_preds
