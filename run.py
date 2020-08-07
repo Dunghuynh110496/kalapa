@@ -38,7 +38,7 @@ def evaluate(i,model, X_train, y_train, X_dev, y_dev, test):
     wandb.log(log1)
 
     print('Model Performance')
-    print(f"fold: {i}, train_auc: {train_accuracy}, train_gini: {train_gini}, dev_auc: {dev_accuracy}, dev_gini: {dev_gini}" )
+    print(f"fold: {i}, train_gini: {train_gini}, dev_gini: {dev_gini}" )
 
     return [test_preds, train_gini, dev_gini]
 
@@ -109,8 +109,9 @@ def main(args):
         }
         wandb.log(log2)
         return test_preds
-    preds  = kfold(train, test)
+    preds = kfold(train, test)
     test["label"] = preds
+    print("a")
     test[["id", "label"]].to_csv("test_preds.csv", index=False)
     wandb.save("test_preds.csv")
 if __name__ == "__main__":
