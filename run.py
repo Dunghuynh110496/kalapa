@@ -81,13 +81,14 @@ def main(args):
                 X_train, X_val = train_fe.iloc[train_idx].drop(["id", "label"], 1), train_fe.iloc[val_idx].drop(
                     ["id", "label"], 1)
                 new_X_train = new_train_fe.drop(["id", "label"], 1)
-                X_train = X_train.append(new_X_train)
+                X_train = pd.concat([X_train,new_X_train], axis = 0)
+
                 X_train = to_category(X_train)
                 for col in col2:
                     X_train[col] = X_train[col].astype('category')
 
                 y_train, y_val = y_label.iloc[train_idx], y_label.iloc[val_idx]
-                y_train = y_train.append(new_train_fe.label)
+                y_train = pd.concat([y_train, new_train_fe.label], axis = 0)
 
                 lgb_train = lgb.Dataset(X_train, y_train)
                 lgb_eval = lgb.Dataset(X_val, y_val)
