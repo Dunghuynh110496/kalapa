@@ -1,21 +1,45 @@
 import pandas as pd
-from sklearn import metrics
 import wandb
 import os
 import argparse
-import lightgbm as lgb
+
 import numpy as np
 
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedKFold
 
 def gini(y_true, y_score):
     return roc_auc_score(y_true, y_score)*2 - 1
-def lgb_gini(y_pred, dataset_true):
-    y_true = dataset_true.get_label()
-    return 'gini', gini(y_true, y_pred), True
 
+def evaluate(i,model, X_train, y_train, X_dev, y_dev, test):
+    train_preds = model.predict(X_train)
+    dev_preds = model.predict(X_dev)
+    test_preds = model.predict_proba(test)
+
+    train_proba = model.predict_proba(X_train)
+    dev_proba = model.predict_proba(X_dev)
+
+    train_errors = abs(train_preds - y_train)
+    mape = 100 * np.mean(train_errors / y_train)
+    train_accuracy = 100 - mape
+
+    dev_errors = abs(dev_preds - y_dev)
+    mape = 100 * np.mean(dev_errors / y_dev)
+    dev_accuracy = 100 - mape
+
+    train_gini = gini(y_train, train_proba)
+    dev_gini = gini(y_dev, dev_proba)
+
+    log1 = {
+        "gini_train": train_gini,
+        "gini": dev_gini
+    }
+    wandb.log(log1)
+
+    print('Model Performance')
+    print(f"fold: {i}, train_auc: {train_accuracy}, train_gini: {train_gini}, dev_auc: {dev_accuracy}, dev_gini: {dev_gini}" )
+
+    return [test_preds, train_accuracy, dev_accuracy, train_gini, dev_gini]
 
 def main(args):
     wandb.init(project="kalapa")
@@ -29,99 +53,68 @@ def main(args):
                "weight_version": args.weight_version})
     train = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
-    cols = train.iloc[:,2:].columns
-    def cate(df_fe):
-        for col in cols:
-            if df_fe[col].dtype.name == "object":
-                df_fe[col] = df_fe[col].astype('category')
-        return df_fe
-    train = cate(train)
-    test = cate(test)
-    col2 = []
-    for col in cols:
-        vc = train[col].value_counts()
-        if len(vc) <= 3:
-            col2.append(col)
-            train[col] = train[col].astype('category')
-    for col in col2:
-        test[col] = test[col].astype('category')
 
-
-
-    lgbm_param = {'boosting_type': 'gbdt', \
-                  'colsample_bytree': 0.6602479798930369, \
-                  'is_unbalance': False, \
-                  'learning_rate': 0.00746275526696824, \
-                  'max_depth': 15, \
-                  'metric': 'auc', \
-                  'min_child_samples': 25, \
-                  'num_leaves': 60, \
-                  'objective': 'binary', \
-                  'reg_alpha': 0.4693391197064131, \
-                  'reg_lambda': 0.16175478669541327, \
-                  'subsample_for_bin': 60000}
-    NUM_BOOST_ROUND = 10000
-
+    clf = RandomForestClassifier(
+        n_estimators=50,
+        criterion='gini',
+        max_depth=5,
+        min_samples_split=2,
+        min_samples_leaf=1,
+        min_weight_fraction_leaf=0.0,
+        max_features='auto',
+        max_leaf_nodes=None,
+        min_impurity_decrease=0.0,
+        min_impurity_split=None,
+        bootstrap=True,
+        oob_score=False,
+        n_jobs=-1,
+        random_state=0,
+        verbose=0,
+        warm_start=False,
+        class_weight='balanced'
+    )
     def kfold(train_fe, test_fe):
         y_label = train_fe.label
-        seeds = np.random.randint(0, 10000, 1)
-        preds = 0
-        feature_important = None
+        test_preds = 0
+        avg_train_accuracy = 0
+        avg_dev_accuracy = 0
         avg_train_gini = 0
-        avg_val_gini = 0
+        avg_dev_gini = 0
+        skf = StratifiedKFold(n_splits=5, random_state=6484, shuffle=True)
 
-        for s in seeds:
-            skf = StratifiedKFold(n_splits=5, random_state=6484, shuffle=True)
-            lgbm_param['random_state'] = 6484
-            seed_train_gini = 0
-            seed_val_gini = 0
-            for i, (train_idx, val_idx) in enumerate(skf.split(np.zeros(len(y_label)), y_label)):
-                X_train, X_val = train_fe.iloc[train_idx].drop(["id", "label"], 1), train_fe.iloc[val_idx].drop(
-                    ["id", "label"], 1)
-                y_train, y_val = y_label.iloc[train_idx], y_label.iloc[val_idx]
+        for i, (train_idx, dev_idx) in enumerate(skf.split(np.zeros(len(y_label)), y_label)):
+            X_train = train_fe.iloc[train_idx].drop(["id", "label"], 1)
+            X_dev = train_fe.iloc[dev_idx].drop(["id", "label"], 1)
+            y_train = y_label.iloc[train_idx]
+            y_dev = y_label.iloc[dev_idx]
+            test = test_fe.iloc[:,1:]
+            clf.fit(X_train, y_train)
+            #output =  [test_preds, train_accuracy, dev_accuracy, train_gini, dev_gini]
+            output = evaluate(i,clf, X_train, y_train, X_dev, y_dev, test)
 
-                lgb_train = lgb.Dataset(X_train, y_train)
-                lgb_eval = lgb.Dataset(X_val, y_val)
+            test_pred = output[0]
+            train_accuracy = output[1]
+            dev_accuracy = output[2]
+            train_gini = output[3]
+            dev_gini = output[4]
 
-                evals_result = {}
-                model = lgb.train(lgbm_param,
-                                  lgb_train,
-                                  num_boost_round=NUM_BOOST_ROUND,
-                                  early_stopping_rounds=400,
-                                  feval=lgb_gini,
-                                  verbose_eval=200,
-                                  evals_result=evals_result,
-                                  valid_sets=[lgb_train, lgb_eval])
+            test_preds += test_pred / (skf.n_splits)
+            avg_train_accuracy += train_accuracy / (skf.n_split)
+            avg_dev_accuracy += dev_accuracy / (skf.n_splits)
+            avg_train_gini += train_gini/ (skf.n_splits)
+            avg_dev_gini += dev_gini/ (skf.n_splits)
 
-                seed_train_gini += model.best_score["training"]["gini"] / skf.n_splits
-                seed_val_gini += model.best_score["valid_1"]["gini"] / skf.n_splits
-
-                avg_train_gini += model.best_score["training"]["gini"] / (len(seeds) * skf.n_splits)
-                avg_val_gini += model.best_score["valid_1"]["gini"] / (len(seeds) * skf.n_splits)
-
-
-                if feature_important is None:
-                    feature_important = model.feature_importance() / (len(seeds) * skf.n_splits)
-                else:
-                    feature_important += model.feature_importance() / (len(seeds) * skf.n_splits)
-
-                pred = model.predict(test_fe.drop(["id"], 1))
-                preds += pred / (skf.n_splits * len(seeds))
-
-                print("Fold {}: {}/{}".format(i, model.best_score["training"]["gini"],
-                                              model.best_score["valid_1"]["gini"]))
-                log = {
-                    "gini_train": model.best_score["training"]["gini"],
-                    "gini": model.best_score["valid_1"]["gini"],
-                    "epoch" : NUM_BOOST_ROUND
-                }
-                wandb.log(log)
-            print("Seed {}: {}/{}".format(s, seed_train_gini, seed_val_gini))
 
         print("-" * 30)
+        print("Avg train accuracy: {}".format(avg_train_accuracy))
+        print("Avg valid accuracy: {}".format(avg_dev_accuracy))
         print("Avg train gini: {}".format(avg_train_gini))
-        print("Avg valid gini: {}".format(avg_val_gini))
+        print("Avg valid gini: {}".format(avg_dev_gini))
         print("=" * 30)
+        log2 = {
+            "gini": avg_dev_gini
+        }
+        wandb.log(log2)
         return preds
     preds  = kfold(train, test)
     test["label"] = preds
