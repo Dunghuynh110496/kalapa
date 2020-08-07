@@ -40,7 +40,7 @@ def evaluate(i,model, X_train, y_train, X_dev, y_dev, test):
     print('Model Performance')
     print(f"fold: {i}, train_auc: {train_accuracy}, train_gini: {train_gini}, dev_auc: {dev_accuracy}, dev_gini: {dev_gini}" )
 
-    return [test_preds, train_accuracy, dev_accuracy, train_gini, dev_gini]
+    return [test_preds, train_gini, dev_gini]
 
 def main(args):
     wandb.init(project="kalapa")
@@ -77,8 +77,6 @@ def main(args):
     def kfold(train_fe, test_fe):
         y_label = train_fe.label
         test_preds = 0
-        avg_train_accuracy = 0
-        avg_dev_accuracy = 0
         avg_train_gini = 0
         avg_dev_gini = 0
         skf = StratifiedKFold(n_splits=5, random_state=6484, shuffle=True)
@@ -90,7 +88,7 @@ def main(args):
             y_dev = y_label.iloc[dev_idx]
             X_test = test_fe.iloc[:,1:]
             clf.fit(X_train, y_train)
-            #output =  [test_preds, train_accuracy, dev_accuracy, train_gini, dev_gini]
+            #output =  [test_preds, train_gini, dev_gini]
             output = evaluate(i,clf, X_train, y_train, X_dev, y_dev, X_test)
 
             test_pred = output[0]
@@ -100,15 +98,11 @@ def main(args):
             dev_gini = output[4]
 
             test_preds += test_pred / (skf.n_splits)
-            avg_train_accuracy += train_accuracy / (skf.n_splits)
-            avg_dev_accuracy += dev_accuracy / (skf.n_splits)
             avg_train_gini += train_gini/ (skf.n_splits)
             avg_dev_gini += dev_gini/ (skf.n_splits)
 
 
         print("-" * 30)
-        print("Avg train accuracy: {}".format(avg_train_accuracy))
-        print("Avg valid accuracy: {}".format(avg_dev_accuracy))
         print("Avg train gini: {}".format(avg_train_gini))
         print("Avg valid gini: {}".format(avg_dev_gini))
         print("=" * 30)
