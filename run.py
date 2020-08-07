@@ -56,7 +56,7 @@ def main(args):
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
 
     clf = RandomForestClassifier(
-        n_estimators=50,
+        n_estimators=2500,
         criterion='gini',
         max_depth=5,
         min_samples_split=2,
