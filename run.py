@@ -8,7 +8,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedKFold
 
 def gini(y_true, y_score):
-    for i in range(len(y_score)):
+    for i in range(len(y_true)):
         if y_true[i]>= 0.5:
             y_true[i] = 1
         else:
@@ -17,6 +17,11 @@ def gini(y_true, y_score):
 
 def lgb_gini(y_pred, dataset_true):
     y_true = dataset_true.get_label()
+    for i in range(len(y_true)):
+        if y_true[i]>= 0.5:
+            y_true[i] = 1
+        else:
+            y_true[i] = 0
     return 'gini', gini(y_true, y_pred), True
 
 def main(args):
