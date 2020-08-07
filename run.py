@@ -17,8 +17,8 @@ def evaluate(i,model, X_train, y_train, X_dev, y_dev, test):
     dev_preds = model.predict(X_dev)
     test_preds = model.predict_proba(test)
 
-    train_proba = model.predict_proba(X_train)
-    dev_proba = model.predict_proba(X_dev)
+    train_proba = model.predict_proba(X_train)[:,1]
+    dev_proba = model.predict_proba(X_dev)[:,1]
 
     train_errors = abs(train_preds - y_train)
     mape = 100 * np.mean(train_errors / y_train)
