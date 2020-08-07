@@ -14,9 +14,9 @@ def gini(y_true, y_score):
 
 def evaluate(i,model, X_train, y_train, X_dev, y_dev, X_test):
 
-    test_preds = model.predict_proba(X_test)[:,1]
-    train_proba = model.predict_proba(X_train)[:,1]
-    dev_proba = model.predict_proba(X_dev)[:,1]
+    test_preds = model.predict_proba(X_test)[:,0]
+    train_proba = model.predict_proba(X_train)[:,0]
+    dev_proba = model.predict_proba(X_dev)[:,0]
 
     train_gini = gini(y_train, train_proba)
     dev_gini = gini(y_dev, dev_proba)
