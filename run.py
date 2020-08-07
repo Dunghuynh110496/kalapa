@@ -100,7 +100,7 @@ def main(args):
             dev_gini = output[4]
 
             test_preds += test_pred / (skf.n_splits)
-            avg_train_accuracy += train_accuracy / (skf.n_split)
+            avg_train_accuracy += train_accuracy / (skf.n_splits)
             avg_dev_accuracy += dev_accuracy / (skf.n_splits)
             avg_train_gini += train_gini/ (skf.n_splits)
             avg_dev_gini += dev_gini/ (skf.n_splits)
