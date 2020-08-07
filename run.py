@@ -92,10 +92,8 @@ def main(args):
             output = evaluate(i,clf, X_train, y_train, X_dev, y_dev, X_test)
 
             test_pred = output[0]
-            train_accuracy = output[1]
-            dev_accuracy = output[2]
-            train_gini = output[3]
-            dev_gini = output[4]
+            train_gini = output[1]
+            dev_gini = output[2]
 
             test_preds += test_pred / (skf.n_splits)
             avg_train_gini += train_gini/ (skf.n_splits)
