@@ -88,10 +88,10 @@ def main(args):
             X_dev = train_fe.iloc[dev_idx].drop(["id", "label"], 1)
             y_train = y_label.iloc[train_idx]
             y_dev = y_label.iloc[dev_idx]
-            test = test_fe.iloc[:,1:]
+            X_test = test_fe.iloc[:,1:]
             clf.fit(X_train, y_train)
             #output =  [test_preds, train_accuracy, dev_accuracy, train_gini, dev_gini]
-            output = evaluate(i,clf, X_train, y_train, X_dev, y_dev, test)
+            output = evaluate(i,clf, X_train, y_train, X_dev, y_dev, X_test)
 
             test_pred = output[0]
             train_accuracy = output[1]
@@ -116,7 +116,7 @@ def main(args):
             "gini": avg_dev_gini
         }
         wandb.log(log2)
-        return preds
+        return test_preds
     preds  = kfold(train, test)
     test["label"] = preds
     test[["id", "label"]].to_csv("test_preds.csv", index=False)
