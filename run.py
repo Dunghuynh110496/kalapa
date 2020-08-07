@@ -13,20 +13,10 @@ def gini(y_true, y_score):
     return roc_auc_score(y_true, y_score)*2 - 1
 
 def evaluate(i,model, X_train, y_train, X_dev, y_dev, test):
-    train_preds = model.predict(X_train)
-    dev_preds = model.predict(X_dev)
 
     test_preds = model.predict_proba(test)[:,1]
     train_proba = model.predict_proba(X_train)[:,1]
     dev_proba = model.predict_proba(X_dev)[:,1]
-
-    train_errors = abs(train_preds - y_train)
-    mape = 100 * np.mean(train_errors / y_train)
-    train_accuracy = 100 - mape
-
-    dev_errors = abs(dev_preds - y_dev)
-    mape = 100 * np.mean(dev_errors / y_dev)
-    dev_accuracy = 100 - mape
 
     train_gini = gini(y_train, train_proba)
     dev_gini = gini(y_dev, dev_proba)
@@ -56,7 +46,7 @@ def main(args):
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
 
     clf = RandomForestClassifier(
-        n_estimators=2500,
+        n_estimators=5000,
         criterion='gini',
         max_depth=5,
         min_samples_split=2,
