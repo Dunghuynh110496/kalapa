@@ -7,7 +7,7 @@ import numpy as np
 
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedKFold
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.neural_network import MLPClassifier
 
 def gini(y_true, y_score):
     return roc_auc_score(y_true, y_score)*2 - 1
