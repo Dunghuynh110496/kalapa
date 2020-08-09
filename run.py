@@ -35,7 +35,7 @@ def main(args):
                "data_version": args.data_version,
                "weight_version": args.weight_version})
     train = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
-    new_train = pd.read_csv(f"../../data/kalapa/{args.data_version}/new_train.csv")
+    #new_train = pd.read_csv(f"../../data/kalapa/{args.data_version}/new_train.csv")
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
     cols = train.iloc[:,2:].columns
 
@@ -69,7 +69,7 @@ def main(args):
                   'subsample_for_bin': 60000}
     NUM_BOOST_ROUND = 10000
 
-    def kfold(train_fe, test_fe, new_train_fe):
+    def kfold(train_fe, test_fe):
         nonlocal col2
         y_label = train_fe.label
         seeds = np.random.randint(0, 10000, 1)
@@ -138,7 +138,7 @@ def main(args):
         wandb.log({"gini":avg_val_gini})
         print("=" * 30)
         return preds
-    preds  = kfold(train, test, new_train)
+    preds  = kfold(train, test)
     test["label"] = preds
     test[["id", "label"]].to_csv("test_preds.csv", index=False)
     wandb.save("test_preds.csv")
