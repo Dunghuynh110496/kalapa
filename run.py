@@ -58,7 +58,7 @@ def main(args):
     lgbm_param = {'boosting_type': 'gbdt', \
                   'colsample_bytree': 0.6602479798930369, \
                   'is_unbalance': False, \
-                  'learning_rate': 0.00746275526696824, \
+                  'learning_rate': 0.01, \
                   'max_depth': 15, \
                   'metric': 'auc', \
                   'min_child_samples': 25, \
@@ -86,15 +86,15 @@ def main(args):
             for i, (train_idx, val_idx) in enumerate(skf.split(np.zeros(len(y_label)), y_label)):
                 X_train, X_val = train_fe.iloc[train_idx].drop(["id", "label"], 1), train_fe.iloc[val_idx].drop(
                     ["id", "label"], 1)
-                new_X_train = new_train_fe.drop(["id", "label"], 1)
-                X_train = pd.concat([X_train,new_X_train], axis = 0)
+                #new_X_train = new_train_fe.drop(["id", "label"], 1)
+                #X_train = pd.concat([X_train,new_X_train], axis = 0)
 
-                X_train = to_category(X_train)
+                #X_train = to_category(X_train)
                 for col in col2:
                     X_train[col] = X_train[col].astype('category')
 
                 y_train, y_val = y_label.iloc[train_idx], y_label.iloc[val_idx]
-                y_train = pd.concat([y_train, new_train_fe.label], axis = 0)
+                #y_train = pd.concat([y_train, new_train_fe.label], axis = 0)
 
                 lgb_train = lgb.Dataset(X_train, y_train)
                 lgb_eval = lgb.Dataset(X_val, y_val)
