@@ -56,8 +56,7 @@ def main(args):
             X_train = train_fe.iloc[train_idx].drop(["id", "label"], 1)
             X_dev = train_fe.iloc[dev_idx].drop(["id", "label"], 1)
             y_train = y_label.iloc[train_idx]
-            print(X_dev.info())
-            print(X_train.info())
+
             y_dev = y_label.iloc[dev_idx]
             X_test = test_fe.iloc[:,1:]
             clf = MLPClassifier(random_state=1, max_iter=300)
