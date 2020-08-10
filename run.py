@@ -38,7 +38,7 @@ def main(args):
     #new_train = pd.read_csv(f"../../data/kalapa/{args.data_version}/new_train.csv")
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
     cols = train.iloc[:,2:].columns
-
+    """
     def to_category(df_fe):
         for col in cols:
             if df_fe[col].dtype.name == "object":
@@ -54,7 +54,7 @@ def main(args):
             train[col] = train[col].astype('category')
     for col in col2:
         test[col] = test[col].astype('category')
-
+    """
     lgbm_param = {'boosting_type': 'gbdt', \
                   'colsample_bytree': 0.6602479798930369, \
                   'is_unbalance': False, \
@@ -70,7 +70,7 @@ def main(args):
     NUM_BOOST_ROUND = 10000
 
     def kfold(train_fe, test_fe):
-        nonlocal col2
+        #nonlocal col2
         y_label = train_fe.label
         seeds = np.random.randint(0, 10000, 1)
         preds = 0
