@@ -90,8 +90,8 @@ def main(args):
                 #X_train = pd.concat([X_train,new_X_train], axis = 0)
 
                 #X_train = to_category(X_train)
-                for col in col2:
-                    X_train[col] = X_train[col].astype('category')
+                #for col in col2:
+                    #X_train[col] = X_train[col].astype('category')
 
                 y_train, y_val = y_label.iloc[train_idx], y_label.iloc[val_idx]
                 #y_train = pd.concat([y_train, new_train_fe.label], axis = 0)
