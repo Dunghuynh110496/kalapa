@@ -50,7 +50,6 @@ def main(args):
     for col in cols:
         vc = train[col].value_counts()
         if len(vc) <= 64:
-            col2.append(col)
             train[col] = train[col].astype('category')
             test[col] = test[col].astype('category')
     lgbm_param = {'boosting_type': 'gbdt', \
