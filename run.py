@@ -38,7 +38,7 @@ def main(args):
     #new_train = pd.read_csv(f"../../data/kalapa/{args.data_version}/new_train.csv")
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
     cols = train.iloc[:,2:].columns
-    """
+
     def to_category(df_fe):
         for col in cols:
             if df_fe[col].dtype.name == "object":
@@ -46,14 +46,7 @@ def main(args):
         return df_fe
     train = to_category(train)
     test = to_category(test)
-    """
-    """
-    for col in cols:
-        vc = train[col].value_counts()
-        if len(vc) <= 3:
-            train[col] = train[col].astype('category')
-            test[col] = test[col].astype('category')
-    """
+
     lgbm_param = {'boosting_type': 'gbdt', \
                   'colsample_bytree': 0.6602479798930369, \
                   'is_unbalance': False, \
