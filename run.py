@@ -133,7 +133,7 @@ def main(args):
     preds  = kfold(train, test)
     test["label"] = preds
     test[["id", "label"]].to_csv("test_preds.csv", index=False)
-    wandb.save("test_preds.csv")
+    wandb.save("test_preds_lgbm.csv")
 
 
 if __name__ == "__main__":
