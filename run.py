@@ -61,13 +61,7 @@ def main(args):
 
             y_dev = y_label.iloc[dev_idx]
             X_test = test_fe.iloc[:,1:]
-            clf = MLPClassifier(solver='adam', \
-                                alpha=0.4693391197064131, \
-                                hidden_layer_sizes=(5, 2), \
-                                max_iter= 2000, \
-                                activation = "logistic", \
-                                batch_size = 200
-                                )
+            clf = MLPClassifier()
             clf.fit(X_train, y_train)
             #output =  [test_preds, train_gini, dev_gini]
             output = evaluate(i,clf, X_train, y_train, X_dev, y_dev, X_test)
@@ -87,7 +81,7 @@ def main(args):
         print("=" * 30)
         log2 = {
             "gini": avg_dev_gini,
-            "epoch": clf.n_estimators
+            "epoch": 2000
         }
         wandb.log(log2)
         return test_preds
