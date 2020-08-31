@@ -44,6 +44,8 @@ def main(args):
                "weight_version": args.weight_version})
     train = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
+    train = train.fillna(train.mean())
+    test = test.fillna(train.iloc[:,1:].mean())
 
     def kfold(train_fe, test_fe):
         y_label = train_fe.label
