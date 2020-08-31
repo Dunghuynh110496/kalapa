@@ -7,8 +7,7 @@ import numpy as np
 
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedKFold
-from sklearn.ensemble import GradientBoostingClassifier
-
+import xgboost as xgb
 def gini(y_true, y_score):
     return roc_auc_score(y_true, y_score)*2 - 1
 
@@ -60,7 +59,10 @@ def main(args):
             y_train = y_label.iloc[train_idx]
             y_dev = y_label.iloc[dev_idx]
             X_test = test_fe.iloc[:,1:]
-            clf = GradientBoostingClassifier(learning_rate=0.01,n_estimators=2000)
+            clf = xgb.XGBClassifier(objective="binary:logistic",\
+                                    random_state=42,\
+                                    learning_rate=0.01,\
+                                    scale_pos_weight = 3)
             clf.fit(X_train, y_train)
             #output =  [test_preds, train_gini, dev_gini]
             output = evaluate(i,clf, X_train, y_train, X_dev, y_dev, X_test)
