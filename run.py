@@ -8,10 +8,20 @@ from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import StratifiedKFold
 
 def gini(y_true, y_score):
+    for i in range(len(y_true)):
+        if y_true[i]>= 0.5:
+            y_true[i] = 1
+        else:
+            y_true[i] = 0
     return roc_auc_score(y_true, y_score)*2 - 1
 
 def lgb_gini(y_pred, dataset_true):
     y_true = dataset_true.get_label()
+    for i in range(len(y_true)):
+        if y_true[i] >= 0.5:
+            y_true[i] = 1
+        else:
+            y_true[i] = 0
     return 'gini', gini(y_true, y_pred), True
 
 def main(args):
@@ -25,7 +35,7 @@ def main(args):
                "data_version": args.data_version,
                "weight_version": args.weight_version})
     train = pd.read_csv(f"../../data/kalapa/{args.data_version}/train.csv")
-    new_train = pd.read_csv(f"../../data/kalapa/{args.data_version}/new_train.csv")
+    #new_train = pd.read_csv(f"../../data/kalapa/{args.data_version}/new_train.csv")
     test = pd.read_csv(f"../../data/kalapa/{args.data_version}/test.csv")
     cols = train.iloc[:,2:].columns
 
@@ -36,19 +46,11 @@ def main(args):
         return df_fe
     train = to_category(train)
     test = to_category(test)
-    col2 = []
-    for col in cols:
-        vc = train[col].value_counts()
-        if len(vc) <= 3:
-            col2.append(col)
-            train[col] = train[col].astype('category')
-    for col in col2:
-        test[col] = test[col].astype('category')
 
     lgbm_param = {'boosting_type': 'gbdt', \
                   'colsample_bytree': 0.6602479798930369, \
-                  'is_unbalance': False, \
-                  'learning_rate': 0.00746275526696824, \
+                  'is_unbalance': True, \
+                  'learning_rate': 0.01, \
                   'max_depth': 15, \
                   'metric': 'auc', \
                   'min_child_samples': 25, \
@@ -59,7 +61,8 @@ def main(args):
                   'subsample_for_bin': 60000}
     NUM_BOOST_ROUND = 10000
 
-    def kfold(train_fe, test_fe, new_train_fe):
+    def kfold(train_fe, test_fe):
+        #nonlocal col2
         y_label = train_fe.label
         seeds = np.random.randint(0, 10000, 1)
         preds = 0
@@ -75,14 +78,15 @@ def main(args):
             for i, (train_idx, val_idx) in enumerate(skf.split(np.zeros(len(y_label)), y_label)):
                 X_train, X_val = train_fe.iloc[train_idx].drop(["id", "label"], 1), train_fe.iloc[val_idx].drop(
                     ["id", "label"], 1)
-                new_X_train = new_train_fe.drop(["id", "label"], 1)
-                X_train = X_train.append(new_X_train)
-                X_train = to_category(X_train)
-                for col in col2:
-                    X_train[col] = X_train[col].astype('category')
+                #new_X_train = new_train_fe.drop(["id", "label"], 1)
+                #X_train = pd.concat([X_train,new_X_train], axis = 0)
+
+                #X_train = to_category(X_train)
+                #for col in col2:
+                    #X_train[col] = X_train[col].astype('category')
 
                 y_train, y_val = y_label.iloc[train_idx], y_label.iloc[val_idx]
-                y_train = y_train.append(new_train_fe.label)
+                #y_train = pd.concat([y_train, new_train_fe.label], axis = 0)
 
                 lgb_train = lgb.Dataset(X_train, y_train)
                 lgb_eval = lgb.Dataset(X_val, y_val)
@@ -126,7 +130,7 @@ def main(args):
         wandb.log({"gini":avg_val_gini})
         print("=" * 30)
         return preds
-    preds  = kfold(train, test, new_train)
+    preds  = kfold(train, test)
     test["label"] = preds
     test[["id", "label"]].to_csv("test_preds.csv", index=False)
     wandb.save("test_preds.csv")
