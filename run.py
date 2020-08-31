@@ -49,7 +49,7 @@ def main(args):
 
     lgbm_param = {'boosting_type': 'gbdt', \
                   'colsample_bytree': 0.6602479798930369, \
-                  'is_unbalance': False, \
+                  'is_unbalance': True, \
                   'learning_rate': 0.01, \
                   'max_depth': 15, \
                   'metric': 'auc', \
