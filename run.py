@@ -65,7 +65,6 @@ def main(args):
                                 alpha=0.4693391197064131, \
                                 hidden_layer_sizes=(5, 2), \
                                 max_iter= 2000, \
-                                early_stopping = True, \
                                 activation = "logistic", \
                                 batch_size = 200
                                 )
