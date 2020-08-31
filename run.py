@@ -69,7 +69,7 @@ def main(args):
                                     reg_alpha = 0.4693391197064131, \
                                     reg_lambda = 0.16175478669541327,\
                                     early_stopping_rounds = 400,\
-                                    n_estimators=10000)
+                                    n_estimators=2000)
             clf.fit(X_train, y_train)
             #output =  [test_preds, train_gini, dev_gini]
             output = evaluate(i,clf, X_train, y_train, X_dev, y_dev, X_test)
