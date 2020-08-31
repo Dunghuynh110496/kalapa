@@ -62,7 +62,6 @@ def main(args):
             clf = MLPClassifier(solver='adam', \
                                 alpha=0.4693391197064131, \
                                 hidden_layer_sizes=(5, 2), \
-                                learning_rate = 0.01, \
                                 max_iter= 2000, \
                                 early_stopping = True, \
                                 activation = "logistic", \
