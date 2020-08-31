@@ -132,7 +132,7 @@ def main(args):
         return preds
     preds  = kfold(train, test)
     test["label"] = preds
-    test[["id", "label"]].to_csv("test_preds.csv", index=False)
+    test[["id", "label"]].to_csv("test_preds_lgbm.csv", index=False)
     wandb.save("test_preds_lgbm.csv")
 
 
