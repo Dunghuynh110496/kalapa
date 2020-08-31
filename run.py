@@ -66,7 +66,7 @@ def main(args):
                                 max_iter= 2000, \
                                 early_stopping = True, \
                                 activation = "logistic", \
-                                batch_size = min(200, n_samples)
+                                batch_size = 200
                                 )
             clf.fit(X_train, y_train)
             #output =  [test_preds, train_gini, dev_gini]
