@@ -59,7 +59,15 @@ def main(args):
 
             y_dev = y_label.iloc[dev_idx]
             X_test = test_fe.iloc[:,1:]
-            clf = MLPClassifier(random_state=1, max_iter=300)
+            clf = MLPClassifier(solver='adam', \
+                                alpha=0.4693391197064131, \
+                                hidden_layer_sizes=(5, 2), \
+                                learning_rate = 0.01, \
+                                max_iter= 2000, \
+                                early_stopping = True, \
+                                activation = "logistic", \
+                                batch_size = min(200, n_samples)
+                                )
             clf.fit(X_train, y_train)
             #output =  [test_preds, train_gini, dev_gini]
             output = evaluate(i,clf, X_train, y_train, X_dev, y_dev, X_test)
@@ -87,7 +95,7 @@ def main(args):
     print(preds)
     test["label"] = preds
     test[["id", "label"]].to_csv("test_preds_rf.csv", index=False)
-    wandb.save("test_preds_rf.csv")
+    wandb.save("test_preds_neural.csv")
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-m", "--message", type=str)
